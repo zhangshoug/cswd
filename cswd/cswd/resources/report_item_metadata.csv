@@ -1,0 +1,312 @@
+type,code,name,en_name,unit,multiplier
+资产负债表,A001,货币资金,Money funds,万元,1
+资产负债表,A002,结算备付金,Settlement provisions,万元,1
+资产负债表,A003,拆出资金,Disassemble funds,万元,1
+资产负债表,A004,交易性金融资产,Transactional financial assets,万元,1
+资产负债表,A005,衍生金融资产,Derivative financial assets,万元,1
+资产负债表,A006,应收票据,bill receivable,万元,1
+资产负债表,A007,应收账款,accounts receivable,万元,1
+资产负债表,A008,预付款项,Prepayments,万元,1
+资产负债表,A009,应收保费,Premium payable,万元,1
+资产负债表,A010,应收分保账款,Receivable accounts receivable,万元,1
+资产负债表,A011,应收分保合同准备金,Payable to the guarantee contract,万元,1
+资产负债表,A012,应收利息,Interest receivable,万元,1
+资产负债表,A013,应收股利,Dividend receivable,万元,1
+资产负债表,A014,其他应收款,Other receivables,万元,1
+资产负债表,A015,应收出口退税,Receivable export tax rebate,万元,1
+资产负债表,A016,应收补贴款,Acceptance of subsidy,万元,1
+资产负债表,A017,应收保证金,Margin of deposit,万元,1
+资产负债表,A018,内部应收款,Internal receivables,万元,1
+资产负债表,A019,买入返售金融资产,Buy back financial assets,万元,1
+资产负债表,A020,存货,inventory,万元,1
+资产负债表,A021,待摊费用,Prepaid expenses,万元,1
+资产负债表,A022,待处理流动资产损益,Possession of current assets to be treated,万元,1
+资产负债表,A023,一年内到期的非流动资产,Non-current assets due within one year,万元,1
+资产负债表,A024,其他流动资产,Other current assets,万元,1
+资产负债表,A025,流动资产合计,Total current assets,万元,1
+资产负债表,A026,发放贷款及垫款,Loans and advances,万元,1
+资产负债表,A027,可供出售金融资产,Available for sale financial assets,万元,1
+资产负债表,A028,持有至到期投资,Held to maturity investments,万元,1
+资产负债表,A029,长期应收款,Long-term receivables,万元,1
+资产负债表,A030,长期股权投资,Long - term equity investment,万元,1
+资产负债表,A031,其他长期投资,Other long - term investments,万元,1
+资产负债表,A032,投资性房地产,Investment real estate,万元,1
+资产负债表,A033,固定资产原值,Original value of fixed assets,万元,1
+资产负债表,A034,累计折旧,Accumulated depreciation,万元,1
+资产负债表,A035,固定资产净值,net value of fixed assets,万元,1
+资产负债表,A036,固定资产减值准备,Provision for impairment of fixed assets,万元,1
+资产负债表,A037,固定资产,Fixed assets,万元,1
+资产负债表,A038,在建工程,Construction in progress,万元,1
+资产负债表,A039,工程物资,Engineer material,万元,1
+资产负债表,A040,固定资产清理,Fixed asset cleanup,万元,1
+资产负债表,A041,生产性生物资产,Productive biological assets,万元,1
+资产负债表,A042,公益性生物资产,Public welfare biological assets,万元,1
+资产负债表,A043,油气资产,Oil and gas assets,万元,1
+资产负债表,A044,无形资产,Intangible assets,万元,1
+资产负债表,A045,开发支出,Development expenditure,万元,1
+资产负债表,A046,商誉,Goodwill,万元,1
+资产负债表,A047,长期待摊费用,Long-term prepaid expenses,万元,1
+资产负债表,A048,股权分置流通权,Equity split,万元,1
+资产负债表,A049,递延所得税资产,Deferred tax assets,万元,1
+资产负债表,A050,其他非流动资产,Other non-current assets,万元,1
+资产负债表,A051,非流动资产合计,Non - current assets,万元,1
+资产负债表,A052,资产总计,total assets,万元,1
+资产负债表,A053,短期借款,short-term loan,万元,1
+资产负债表,A054,向中央银行借款,Borrow from the central bank,万元,1
+资产负债表,A055,吸收存款及同业存放,Absorb deposits and interbank deposits,万元,1
+资产负债表,A056,拆入资金,Borrow funds,万元,1
+资产负债表,A057,交易性金融负债,Transactional financial liabilities,万元,1
+资产负债表,A058,衍生金融负债,Derivative financial liabilities,万元,1
+资产负债表,A059,应付票据,Bills payable,万元,1
+资产负债表,A060,应付账款,accounts payable,万元,1
+资产负债表,A061,预收账款,Advance payment,万元,1
+资产负债表,A062,卖出回购金融资产款,Sell repurchase of financial assets,万元,1
+资产负债表,A063,应付手续费及佣金,Fees and commissions,万元,1
+资产负债表,A064,应付职工薪酬,Payable to staff salaries,万元,1
+资产负债表,A065,应交税费,Taxes payable,万元,1
+资产负债表,A066,应付利息,Interest payable,万元,1
+资产负债表,A067,应付股利,Dividend payable,万元,1
+资产负债表,A068,其他应交款,Other should pay,万元,1
+资产负债表,A069,应付保证金,Margin payable,万元,1
+资产负债表,A070,内部应付款,Internal payables,万元,1
+资产负债表,A071,其他应付款,Other payables,万元,1
+资产负债表,A072,预提费用,Accrued expenses,万元,1
+资产负债表,A073,预计流动负债,Expected current liabilities,万元,1
+资产负债表,A074,应付分保账款,Payable to the insurance,万元,1
+资产负债表,A075,保险合同准备金,Insurance contract reserve,万元,1
+资产负债表,A076,代理买卖证券款,Act on the sale of securities,万元,1
+资产负债表,A077,代理承销证券款,Acting underwriting securities,万元,1
+资产负债表,A078,国际票证结算,International Ticket Settlement,万元,1
+资产负债表,A079,国内票证结算,Domestic ticket settlement,万元,1
+资产负债表,A080,递延收益,accruedand_deferred_income_current,万元,1
+资产负债表,A081,应付短期债券,Short - term bonds payable,万元,1
+资产负债表,A082,一年内到期的非流动负债,Non-current liabilities due within one year,万元,1
+资产负债表,A083,其他流动负债,Other current liabilities,万元,1
+资产负债表,A084,流动负债合计,Total current liabilities,万元,1
+资产负债表,A085,长期借款,Long term loan,万元,1
+资产负债表,A086,应付债券,Bonds payable,万元,1
+资产负债表,A087,长期应付款,Long-term payables,万元,1
+资产负债表,A088,专项应付款,Special payables,万元,1
+资产负债表,A089,预计非流动负债,Expected non-current liabilities,万元,1
+资产负债表,A090,长期递延收益,accruedand_deferred_income_non_current,万元,1
+资产负债表,A091,递延所得税负债,Deferred income tax liabilities,万元,1
+资产负债表,A092,其他非流动负债,Other non-current liabilities,万元,1
+资产负债表,A093,非流动负债合计,Non-current liabilities,万元,1
+资产负债表,A094,负债合计,Total Liabilities,万元,1
+资产负债表,A095,实收资本(或股本),Paid-in capital (or share capital),万元,1
+资产负债表,A096,资本公积,Capital reserve,万元,1
+资产负债表,A097,减:库存股,Less: Stocks,万元,1
+资产负债表,A098,专项储备,Special reserves,万元,1
+资产负债表,A099,盈余公积,Surplus reserve,万元,1
+资产负债表,A100,一般风险准备,general risk preparation,万元,1
+资产负债表,A101,未确定的投资损失,Uncertain investment loss,万元,1
+资产负债表,A102,未分配利润,undistributed profit,万元,1
+资产负债表,A103,拟分配现金股利,To be allocated cash dividends,万元,1
+资产负债表,A104,外币报表折算差额,Translation of foreign currency statements,万元,1
+资产负债表,A105,归属于母公司股东权益合计,Attributable to shareholders' equity of parent company,万元,1
+资产负债表,A106,少数股东权益,Minority interests,万元,1
+资产负债表,A107,所有者权益(或股东权益)合计,Owners 'equity (or shareholders' equity),万元,1
+资产负债表,A108,负债和所有者权益(或股东权益)总计,Liabilities and owners 'equity (or shareholders' equity),万元,1
+利润表,B001,营业总收入,Total operating income,万元,1
+利润表,B002,营业收入,Operating income,万元,1
+利润表,B003,利息收入,Interest income,万元,1
+利润表,B004,已赚保费,Earned premium,万元,1
+利润表,B005,手续费及佣金收入,Fee and commission income,万元,1
+利润表,B006,房地产销售收入,Real estate sales revenue,万元,1
+利润表,B007,其他业务收入,Other operating income,万元,1
+利润表,B008,营业总成本,Total operating costs,万元,1
+利润表,B009,营业成本,Operating cost,万元,1
+利润表,B010,利息支出,Interest expense,万元,1
+利润表,B011,手续费及佣金支出,Fees and commission expenses,万元,1
+利润表,B012,房地产销售成本,Real estate sales cost,万元,1
+利润表,B013,研发费用,R & D expenses,万元,1
+利润表,B014,退保金,Surrender,万元,1
+利润表,B015,赔付支出净额,Net expenses,万元,1
+利润表,B016,提取保险合同准备金净额,Withdraw the net amount of the insurance contract reserve,万元,1
+利润表,B017,保单红利支出,Insurance dividend expenses,万元,1
+利润表,B018,分保费用,Reinsurance costs,万元,1
+利润表,B019,其他业务成本,Other operating costs,万元,1
+利润表,B020,营业税金及附加,Business tax and surcharges,万元,1
+利润表,B021,销售费用,sales expense,万元,1
+利润表,B022,管理费用,Management costs,万元,1
+利润表,B023,财务费用,Financial expenses,万元,1
+利润表,B024,资产减值损失,Impairment of assets,万元,1
+利润表,B025,公允价值变动收益,Fair value gains,万元,1
+利润表,B026,投资收益,Investment income,万元,1
+利润表,B027,对联营企业和合营企业的投资收益,Investment income in associates and joint ventures,万元,1
+利润表,B028,汇兑收益,Exchange gains,万元,1
+利润表,B029,期货损益,Futures gains and losses,万元,1
+利润表,B030,托管收益,Managed income,万元,1
+利润表,B031,补贴收入,Subsidy income,万元,1
+利润表,B032,其他业务利润,Other business profits,万元,1
+利润表,B033,营业利润,operating profit,万元,1
+利润表,B034,营业外收入,Non-operating income,万元,1
+利润表,B035,营业外支出,Operating expenses,万元,1
+利润表,B036,非流动资产处置损失,Loss on disposal of non-current assets,万元,1
+利润表,B037,利润总额,The total profit,万元,1
+利润表,B038,所得税费用,Income tax expense,万元,1
+利润表,B039,未确认投资损失,Unrecognized investment losses,万元,1
+利润表,B040,净利润,Net profit,万元,1
+利润表,B041,归属于母公司所有者的净利润,the retained profits belong to the parent company's owner,万元,1
+利润表,B042,被合并方在合并前实现净利润,The merged party realizes the net profit before the merger,万元,1
+利润表,B043,少数股东损益,Minority gains and losses,万元,1
+利润表,B044,基本每股收益,Basic earnings per share,nan,100
+利润表,B045,稀释每股收益,Diluted earnings per share,nan,100
+现金流量表,C001, 销售商品、提供劳务收到的现金,Cash received from the sale of goods or services,万元,1
+现金流量表,C002, 客户存款和同业存放款项净增加额,Net deposits and deposits with banks,万元,1
+现金流量表,C003, 向中央银行借款净增加额,Net increase in borrowings to the central bank,万元,1
+现金流量表,C004, 向其他金融机构拆入资金净增加额,To the other financial institutions to insert a net increase in funds,万元,1
+现金流量表,C005, 收到原保险合同保费取得的现金,Cash received from the original insurance contract premium,万元,1
+现金流量表,C006, 收到再保险业务现金净额,Receipt of reinsurance business net cash,万元,1
+现金流量表,C007, 保户储金及投资款净增加额,Net deposit and investment net increase,万元,1
+现金流量表,C008, 处置交易性金融资产净增加额,Net increase in transactional financial assets,万元,1
+现金流量表,C009, 收取利息、手续费及佣金的现金,Cash paid for fees or charges and commissions,万元,1
+现金流量表,C010, 拆入资金净增加额,Net increase in borrowed funds,万元,1
+现金流量表,C011, 回购业务资金净增加额,Net increase in repurchase business funds,万元,1
+现金流量表,C012, 收到的税费返还,Tax Refund,万元,1
+现金流量表,C013, 收到的其他与经营活动有关的现金,Other cash received relating to operating activities,万元,1
+现金流量表,C014, 经营活动现金流入小计,Subtotal of cash inflow from operating activities,万元,1
+现金流量表,C015, 购买商品、接受劳务支付的现金,Cash paid for the purchase of goods or services,万元,1
+现金流量表,C016, 客户贷款及垫款净增加额,Net increase in customer loans and advances,万元,1
+现金流量表,C017, 存放中央银行和同业款项净增加额,Deposit the net increase of the central bank and the same industry,万元,1
+现金流量表,C018, 支付原保险合同赔付款项的现金,Payment of the original insurance contract to pay the amount of cash,万元,1
+现金流量表,C019, 支付利息、手续费及佣金的现金,Payment of interest or fees and commission of cash,万元,1
+现金流量表,C020, 支付保单红利的现金,Pay the dividend on the dividend,万元,1
+现金流量表,C021, 支付给职工以及为职工支付的现金,Payment to employees and cash paid for employees,万元,1
+现金流量表,C022, 支付的各项税费,Pay the taxes,万元,1
+现金流量表,C023, 支付的其他与经营活动有关的现金,Payment of other cash related to operating activities,万元,1
+现金流量表,C024, 经营活动现金流出小计,Subtotal of cash outflow from operating activities,万元,1
+现金流量表,C025, 经营活动产生的现金流量净额,Net cash flow from operating activities,万元,1
+现金流量表,C026, 收回投资所收到的现金,Recover the cash received from the investment,万元,1
+现金流量表,C027, 取得投资收益所收到的现金,Cash received from investment income,万元,1
+现金流量表,C028, 处置固定资产、无形资产和其他长期资产所收回的现金净额,Net cash received from disposal of fixed assets or intangible assets and other long-term assets,万元,1
+现金流量表,C029, 处置子公司及其他营业单位收到的现金净额,Disposal of subsidiaries and other business units to receive the net cash,万元,1
+现金流量表,C030, 收到的其他与投资活动有关的现金,Other cash received relating to investment activities,万元,1
+现金流量表,C031, 减少质押和定期存款所收到的现金,Reduce the cash received from pledges and time deposits,万元,1
+现金流量表,C032, 投资活动现金流入小计,Cash inflow from investing activities Subtotal,万元,1
+现金流量表,C033, 购建固定资产、无形资产和其他长期资产所支付的现金,Purchase of fixed assets or intangible assets and other long-term assets to pay the cash,万元,1
+现金流量表,C034, 投资所支付的现金,The cash paid for the investment,万元,1
+现金流量表,C035, 质押贷款净增加额,Net increase in pledged loans,万元,1
+现金流量表,C036, 取得子公司及其他营业单位支付的现金净额,Acquisition of net cash from subsidiaries and other business units,万元,1
+现金流量表,C037, 支付的其他与投资活动有关的现金,Payment of other cash related to investment activities,万元,1
+现金流量表,C038, 增加质押和定期存款所支付的现金,Increase the amount of money paid by pledge and time deposit,万元,1
+现金流量表,C039, 投资活动现金流出小计,Subtotal of cash outflow from investing activities,万元,1
+现金流量表,C040, 投资活动产生的现金流量净额,Net cash flows from investing activities,万元,1
+现金流量表,C041, 吸收投资收到的现金,Absorb the cash received from the investment,万元,1
+现金流量表,C042, 其中：子公司吸收少数股东投资收到的现金,Among them: the subsidiary to absorb the minority shareholders to receive the cash received,万元,1
+现金流量表,C043, 取得借款收到的现金,Get the cash received from the loan,万元,1
+现金流量表,C044, 发行债券收到的现金,Cash paid for the issue of bonds,万元,1
+现金流量表,C045, 收到其他与筹资活动有关的现金,Receipt of other cash related to financing activities,万元,1
+现金流量表,C046, 筹资活动现金流入小计,Cash inflow from financing activities Subtotal,万元,1
+现金流量表,C047, 偿还债务支付的现金,Pay the debts to pay the cash,万元,1
+现金流量表,C048, 分配股利、利润或偿付利息所支付的现金,Distribute dividends or profits or pay the interest paid by the cash,万元,1
+现金流量表,C049, 其中：子公司支付给少数股东的股利、利润,Among them: the dividends or profits paid by the subsidiary to the minority shareholders,万元,1
+现金流量表,C050, 支付其他与筹资活动有关的现金,Payment of other cash related to financing activities,万元,1
+现金流量表,C051, 筹资活动现金流出小计,Cash outflow of financing activities Subtotal,万元,1
+现金流量表,C052, 筹资活动产生的现金流量净额,Net cash flow from financing activities,万元,1
+现金流量表,C053, 汇率变动对现金及现金等价物的影响,The effect of exchange rate changes on cash and cash equivalents,万元,1
+现金流量表,C054, 现金及现金等价物净增加额,Net increase in cash and cash equivalents,万元,1
+现金流量表,C055, 加:期初现金及现金等价物余额,Plus: cash balance at the beginning of the period and cash equivalents,万元,1
+现金流量表,C056, 期末现金及现金等价物余额,Cash and cash equivalents at the end of the period,万元,1
+现金流量表,C057, 净利润,Net profit,万元,1
+现金流量表,C058, 少数股东损益,Minority gains and losses,万元,1
+现金流量表,C059, 未确认的投资损失,Unconfirmed investment losses,万元,1
+现金流量表,C060, 资产减值准备,Impairment of assets,万元,1
+现金流量表,C061, 固定资产折旧、油气资产折耗、生产性物资折旧,Depreciation of fixed assets or depletion of oil and gas assets or depreciation of productive materials,万元,1
+现金流量表,C062, 无形资产摊销,Amortization of intangible assets,万元,1
+现金流量表,C063, 长期待摊费用摊销,Long-term deferred expenses amortization,万元,1
+现金流量表,C064, 待摊费用的减少,The reduction in prepaid expenses,万元,1
+现金流量表,C065, 预提费用的增加,Increased accrued costs,万元,1
+现金流量表,C066, 处置固定资产、无形资产和其他长期资产的损失,Disposal of fixed assets or intangible assets and other long-term assets,万元,1
+现金流量表,C067, 固定资产报废损失,Loss of fixed assets,万元,1
+现金流量表,C068, 公允价值变动损失,Loss of fair value changes,万元,1
+现金流量表,C069, 递延收益增加(减：减少),Deferred income increase (less: decrease),万元,1
+现金流量表,C070, 预计负债,Expected liabilities,万元,1
+现金流量表,C071, 财务费用,Financial expenses,万元,1
+现金流量表,C072, 投资损失,Investment loss,万元,1
+现金流量表,C073, 递延所得税资产减少,Deferred tax assets are reduced,万元,1
+现金流量表,C074, 递延所得税负债增加,Deferred income tax liabilities increased,万元,1
+现金流量表,C075, 存货的减少,The reduction in inventories,万元,1
+现金流量表,C076, 经营性应收项目的减少,Decrease in operating receivables,万元,1
+现金流量表,C077, 经营性应付项目的增加,Increased operating expenses payable,万元,1
+现金流量表,C078, 已完工尚未结算款的减少(减:增加),Completed reduced (less: increased),万元,1
+现金流量表,C079, 已结算尚未完工款的增加(减:减少),Settlement of outstanding balances (less: less),万元,1
+现金流量表,C080, 其他,other,万元,1
+现金流量表,C081, 经营活动产生现金流量净额,Net cash flow from operating activities,万元,1
+现金流量表,C082, 债务转为资本,Conversion of debt into capital,万元,1
+现金流量表,C083, 一年内到期的可转换公司债券,Convertible corporate bonds due within one year,万元,1
+现金流量表,C084, 融资租入固定资产,Financing lease of fixed assets,万元,1
+现金流量表,C085, 现金的期末余额,Cash at the end of the balance,万元,1
+现金流量表,C086, 现金的期初余额,Cash at the beginning of the balance,万元,1
+现金流量表,C087, 现金等价物的期末余额,The ending balance of the cash equivalents,万元,1
+现金流量表,C088, 现金等价物的期初余额,Cash equivalents at the beginning of the balance,万元,1
+现金流量表,C089, 现金及现金等价物的净增加额,Net increase in cash and cash equivalents,万元,1
+主要财务指标,D001,基本每股收益,Basic earnings per share,元,100
+主要财务指标,D002,每股净资产,Net assets per share,元,100
+主要财务指标,D003,每股经营活动产生的现金流量净额,Net cash flow from operating activities per share,元,100
+主要财务指标,D004,主营业务收入,Main business income,万元,1
+主要财务指标,D005,主营业务利润,Profit from principal operations,万元,1
+主要财务指标,D006,营业利润,operating profit,万元,1
+主要财务指标,D007,投资收益,Investment income,万元,1
+主要财务指标,D008,营业外收支净额,Net operating income and expenses,万元,1
+主要财务指标,D009,利润总额,The total profit,万元,1
+主要财务指标,D010,净利润,Net profit,万元,1
+主要财务指标,D011,净利润(扣除非经常性损益后),Net profit (after deducting non-recurring gains and losses),万元,1
+主要财务指标,D012,经营活动产生的现金流量净额,Net cash flow from operating activities,万元,1
+主要财务指标,D013,现金及现金等价物净增加额,Net increase in cash and cash equivalents,万元,1
+主要财务指标,D014,总资产,Total assets,万元,1
+主要财务指标,D015,流动资产,Current assets,万元,1
+主要财务指标,D016,总负债,total liability,万元,1
+主要财务指标,D017,流动负债,Current liabilities,万元,1
+主要财务指标,D018,股东权益不含少数股东权益,Shareholders' equity does not include minority interests,万元,1
+主要财务指标,D019,净资产收益率加权,Return on net assets,%,100
+盈利能力,E001,总资产利润率,Total assets profit margins,%,100
+盈利能力,E002,主营业务利润率,OPE,%,100
+盈利能力,E003,总资产净利润率,Total net profit margin,%,100
+盈利能力,E004,成本费用利润率,Cost of profit margins,%,100
+盈利能力,E005,营业利润率,Operating margin,%,100
+盈利能力,E006,主营业务成本率,Main business cost rate,%,100
+盈利能力,E007,销售净利率,Net profit margin,%,100
+盈利能力,E008,净资产收益率,Roe,%,100
+盈利能力,E009,股本报酬率,Return on equity,%,100
+盈利能力,E010,净资产报酬率,Return on net assets,%,100
+盈利能力,E011,资产报酬率,Return on assets,%,100
+盈利能力,E012,销售毛利率,Sales gross margin,%,100
+盈利能力,E013,三项费用比重,The proportion of the three costs,%,100
+盈利能力,E014,非主营比重,Non - core proportion,%,100
+盈利能力,E015,主营利润比重,The proportion of the main profit,%,100
+偿还能力,F001,流动比率,Flow ratio,%,100
+偿还能力,F002,速动比率,Quick ratio,%,100
+偿还能力,F003,现金比率,Cash ratio,%,100
+偿还能力,F004,利息支付倍数,Interest payment multiple,%,100
+偿还能力,F005,资产负债率,Assets and liabilities,%,100
+偿还能力,F006,长期债务与营运资金比率,Long - term debt and working capital ratio,%,100
+偿还能力,F007,股东权益比率,Shareholders' equity ratio,%,100
+偿还能力,F008,长期负债比率,Long - term debt ratio,%,100
+偿还能力,F009,股东权益与固定资产比率,Shareholders' Equity and Fixed Assets Ratio,%,100
+偿还能力,F010,负债与所有者权益比率,Debt to owner 's equity ratio,%,100
+偿还能力,F011,长期资产与长期资金比率,Long - term assets and long - term capital ratio,%,100
+偿还能力,F012,资本化比率,Capitalization ratio,%,100
+偿还能力,F013,固定资产净值率,Fixed net asset value,%,100
+偿还能力,F014,资本固定化比率,Capital fixed rate,%,100
+偿还能力,F015,产权比率,Ratio of property rights,%,100
+偿还能力,F016,清算价值比率,Liquidation ratio,%,100
+偿还能力,F017,固定资产比重,Proportion of fixed assets,%,100
+成长能力,G001,主营业务收入增长率,Main business income growth rate,%,100
+成长能力,G002,净利润增长率,Net profit growth rate,%,100
+成长能力,G003,净资产增长率,Net asset growth rate,%,100
+成长能力,G004,总资产增长率,Total asset growth rate,%,100
+营运能力,H001,应收账款周转率,Accounts receivable turnover,次,100
+营运能力,H002,应收账款周转天数,Accounts receivable turnover days,天,100
+营运能力,H003,存货周转率,Inventory turnover,次,100
+营运能力,H004,固定资产周转率,Fixed asset turnover,次,100
+营运能力,H005,总资产周转率,Total asset turnover,次,100
+营运能力,H006,存货周转天数,Inventory turnover days,天,100
+营运能力,H007,总资产周转天数,Total assets turnover days,天,100
+营运能力,H008,流动资产周转率,Current asset turnover,次,100
+营运能力,H009,流动资产周转天数,Turnover of working assets,天,100
+营运能力,H010,经营现金净流量对销售收入比率,Operating cash flow to sales revenue ratio,%,100
+营运能力,H011,资产的经营现金流量回报率,Return on Assets' Cash Flow,%,100
+营运能力,H012,经营现金净流量与净利润的比率,The ratio of net cash flow to net profit,%,100
+营运能力,H013,经营现金净流量对负债比率,Operating cash flow to debt ratio,%,100
+营运能力,H014,现金流量比率,Cash flow ratio,%,100
