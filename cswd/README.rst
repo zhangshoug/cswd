@@ -1,18 +1,23 @@
-Odo
-===
+cswd
+====
 
-Data migration in Python
+A股网络数据工具
 
 
-INSTALL
--------
+安装
+----
+
+1. 克隆
+2. 进入安装环境
+3. 转移至安装目录
+
 .. code-block:: python
 
-   >>> pip install git+https://github.com/liudengfeng/odo.git
+   >>> python setup.py install
 
 
-Example
--------
+初始化
+------
 
 Odo migrates data between different containers
 
