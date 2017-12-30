@@ -260,3 +260,6 @@ paket-files/
 __pycache__/
 *.pyc
 cswd.sln
+/cswd/build
+/cswd/cswd.egg-info
+/cswd/dist
