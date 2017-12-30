@@ -10,6 +10,7 @@ A股网络数据工具
 1. 克隆
 2. 进入安装环境
 3. 转移至安装目录
+4. 执行安装
 
 .. code-block:: python
 
@@ -19,15 +20,12 @@ A股网络数据工具
 初始化
 ------
 
-Odo migrates data between different containers
+1. 进入环境
+2. 初始化
 
 .. code-block:: python
 
-   >>> from odo import odo
-   >>> odo((1, 2, 3), list)
-   [1, 2, 3]
+   >>> init_db_data
 
-It operates on small, in-memory containers (as above) and large, out-of-core
-containers (as below)
-
+**注意**初始化将删除所有本地数据库文件
 
