@@ -8,20 +8,11 @@ A股网络数据工具。
 
 ## 安装
 
-1. 克隆
-2. 进入安装环境
-3. 转移至安装目录
-4. 执行安装
-
-`>>> python setup.py install`
+`>>> pip install git+https://github.com/liudengfeng/cswd.git`
 
 ## 测试
 
-1. 进入安装环境
-2. 转移至项目目录
-3. 执行测试
-
-`>>> pytest -v`
+`>>> pytest -v --pyargs cswd`
 
 ## 初始化
 
