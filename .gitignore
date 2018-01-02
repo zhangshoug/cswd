@@ -263,3 +263,6 @@ cswd.sln
 /cswd/build
 /cswd/cswd.egg-info
 /cswd/dist
+/build
+/cswd.egg-info
+/dist
