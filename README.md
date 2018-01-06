@@ -41,3 +41,7 @@ A股网络数据工具。
 
 + 用时：整个过程预计耗时20分钟，根据个人网络环境及计算机配置，用时有较大差异。
 + 建议：使用任务计划程序后台执行。
+
+## 后台任务
++ ![自动刷新](https://github.com/liudengfeng/zipline/blob/master/docs/memo/images/whl_packages.PNG)
++ ![隐藏执行](https://github.com/liudengfeng/zipline/blob/master/docs/memo/images/whl_packages.PNG)
