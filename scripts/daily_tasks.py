@@ -6,7 +6,6 @@
 TODO：考虑在执行刷新数据前，检查各主要数据源网站的连通情况。
 TODO: 分离基础信息与交易数据
 """
-#?
 from cswd.dataproxy.data_proxies import announcement_reader
 
 def refresh_stock_base_data():
