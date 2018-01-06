@@ -1,4 +1,46 @@
-from setuptools import setup, find_packages
+from setuptools import setup
+
+import os
+import sys
+from fnmatch import fnmatch
+
+
+def ispackage(x):
+    return os.path.isdir(x) and os.path.exists(os.path.join(x, '__init__.py'))
+
+
+def istestdir(x):
+    return os.path.isdir(x) and not os.path.exists(os.path.join(x, '__init__.py'))
+
+
+def find_packages(where='cswd', exclude=('ez_setup', 'distribute_setup'),
+                  predicate=ispackage):
+    if sys.version_info[0] == 3:
+        exclude += ('*py2only*', '*__pycache__*')
+
+    func = lambda x: predicate(x) and not any(fnmatch(x, exc)
+                                              for exc in exclude)
+    return list(filter(func, [x[0] for x in os.walk(where)]))
+
+
+packages = find_packages()
+testdirs = find_packages(predicate=(lambda x: istestdir(x) and
+                                    os.path.basename(x) == 'tests'))
+
+
+def find_data_files(exts, where='cswd'):
+    exts = tuple(exts)
+    for root, dirs, files in os.walk(where):
+        for f in files:
+            if any(fnmatch(f, pat) for pat in exts):
+                yield os.path.join(root, f)
+
+
+exts = ('*.csv',)
+package_data = [os.path.join(x.replace('cswd' + os.sep, ''), '*.py')
+                for x in testdirs]
+package_data += [x.replace('cswd' + os.sep, '')
+                 for x in find_data_files(exts)]
 
 def read(filename):
     with open(filename, 'r') as f:
@@ -19,7 +61,7 @@ setup(
     include_package_data=True,
     #zip_safe=False,
     package_data={
-        '': ['resources/*.csv'],
+        'cswd': package_data,
     },
     scripts=['scripts/init_db_data.py',
              'scripts/daily_tasks.py',

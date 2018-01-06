@@ -65,3 +65,25 @@ ad_reader = DataProxy(fetch_adjustment)
 # 国库券
 treasury_reader = DataProxy(fetch_treasury_data_from)
 
+__all__ = [
+    'is_today_trading_reader',
+    'non_trading_days_reader',
+    'gpjk_reader',
+    'juchao_info_reader',
+    'wy_info_reader',
+    'stock_code_reader',
+    'top_10_reader',
+    'jjcg_reader',
+    'announcement_reader',
+    'industry_stocks_reader',
+    'industry_reader',
+    'index_info_reader',
+    'index_base_reader',
+    'history_data_reader',
+    'margin_reader',
+    'indicator_reader',
+    'report_reader',
+    'performance_notice_reader',
+    'ad_reader',
+    'treasury_reader'
+]

@@ -52,12 +52,3 @@ def plural(word):
         return word[:-2] + 'en'
     else:
         return word + 's'
-
-def ensure_list(x):
-    """确保输入转换为列表"""
-    if isinstance(x, str):
-        return [x]
-    elif isinstance(x, Iterable):
-        return [v for v in x]
-    else:
-        raise TypeError('参数"x"要么为str对象，要么为可迭代对象。')
