@@ -54,5 +54,7 @@ A股网络数据工具。
 	+ ![隐藏执行](https://github.com/liudengfeng/cswd/blob/master/images/隐藏执行.PNG)
 
 	+ 需要系统管理权限
+
 	+ 输入登陆密码
+
 	+ 如果不需要观察运行结果，请使用此选项
