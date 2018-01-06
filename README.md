@@ -8,7 +8,12 @@ A股网络数据工具。
 
 ## 安装
 
-`>>> pip install git+https://github.com/liudengfeng/cswd.git`
++ 克隆到本地
++ 进入安装环境，转移至安目录后执行
+
+`>>> python setup.py install`
+
+	+ 本地安装避免编码问题
 
 ## 测试
 

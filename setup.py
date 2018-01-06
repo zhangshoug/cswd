@@ -17,6 +17,7 @@ setup(
     install_requires=install_requires(),
     python_requires='>=3.6',
     include_package_data=True,
+    zip_safe=False,
     package_data={
         '': ['resources/*.csv'],
     },
