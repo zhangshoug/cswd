@@ -43,10 +43,16 @@ A股网络数据工具。
 
 ## 设置后台任务
 
-+ ![自动刷新](https://github.com/liudengfeng/cswd/blob/master/images/后台刷新.PNG)
+1. 执行路径
+	+ ![自动刷新](https://github.com/liudengfeng/cswd/blob/master/images/后台刷新.PNG)
+
 	+ 选项`起始于`路径为："<安装环境目录>/Scripts"
+
 	+ ![参考](https://github.com/liudengfeng/cswd/blob/master/images/文件路径.PNG)
-+ ![隐藏执行](https://github.com/liudengfeng/cswd/blob/master/images/隐藏执行.PNG)
+
+2. 后台执行
+	+ ![隐藏执行](https://github.com/liudengfeng/cswd/blob/master/images/隐藏执行.PNG)
+
 	+ 需要系统管理权限
 	+ 输入登陆密码
 	+ 如果不需要观察运行结果，请使用此选项
