@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 刷新日线数据前，必须刷新交易日期数据。
 
@@ -105,3 +103,5 @@ def main():
     refresh_index_data()
     refresh_finance_data()
 
+if __name__ == '__main__':
+    main()
