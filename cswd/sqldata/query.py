@@ -14,15 +14,14 @@ OHLC = ['open','high','low','close']
 # pd.set_option('precision',2)
 
 def _adjusted_ohlc(ohlc, change_pct, normalize = False, base_col = 'close'):
-    assert isinstance(ohlc, pd.DataFrame)
-    assert 'close' in ohlc.columns
-    assert isinstance(change_pct, pd.Series)
+    assert isinstance(ohlc, pd.DataFrame), 'ohlc必须为pd.DataFrame, get {}'.format(type(ohlc))
+    assert isinstance(change_pct, pd.Series), 'change_pct必须为pd.Series, get {}'.format(type(change_pct))
     # 首日涨跌幅更改为0.0
     change_pct[0] = 0.0
     fac = (change_pct.fillna(0) / 100 + 1).cumprod()
     base_price = ohlc[base_col][0]
 
-    baseline = ohlc['close']
+    baseline = ohlc[base_col]
     data = {col:fac * ohlc[col] / baseline for col in ohlc.columns}
     if normalize:
         res = pd.DataFrame(data, columns=ohlc.columns)
@@ -135,5 +134,6 @@ def query_adjusted_pricing(stock_code, start_date=None, end_date=None, fields=OH
 
     change_pct = raw_df['change_pct']
     ohlc_df = raw_df.loc[:, in_ohlc_cols]
+    base_col = 'close' if 'close' in fields else fields[0]
     adjed = _adjusted_ohlc(ohlc_df, change_pct, normalize)
     return pd.concat([adjed, raw_df.loc[:,not_in_ohlc_cols]],1)
