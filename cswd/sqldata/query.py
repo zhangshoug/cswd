@@ -135,5 +135,5 @@ def query_adjusted_pricing(stock_code, start_date=None, end_date=None, fields=OH
     change_pct = raw_df['change_pct']
     ohlc_df = raw_df.loc[:, in_ohlc_cols]
     base_col = 'close' if 'close' in fields else fields[0]
-    adjed = _adjusted_ohlc(ohlc_df, change_pct, normalize)
+    adjed = _adjusted_ohlc(ohlc_df, change_pct, normalize, base_col)
     return pd.concat([adjed, raw_df.loc[:,not_in_ohlc_cols]],1)
