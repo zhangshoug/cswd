@@ -8,7 +8,7 @@ from .base import friendly_download, get_page_response
 
 QUOTE_PATTERN = re.compile('"(.*)"')
 
-# 删除尾部验证列
+# 删除尾部列
 # 合并日期与时间列，生成时间列
 QUOTE_COLS = ['short_name', 'open','prev_close','close','high','low',
               'bid_buy','bid_sell','volume','amount',
