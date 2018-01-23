@@ -1,5 +1,5 @@
 from .date_utils import *
-
+from .sina import fetch_quotes
 from .fenghuang import fetch_gpgk
 
 from .juchao import (fetch_symbols_list, 
@@ -80,5 +80,6 @@ __all__ = [
     'fetch_csrc_industry_stocks',
     'fetch_minutely_prices',
     'get_recent_trading_stocks',
-    'fetch_ipo_info'
+    'fetch_ipo_info',
+    'fetch_quotes'
 ]
