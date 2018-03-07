@@ -7,6 +7,7 @@ import pandas as pd
 from .base import friendly_download, get_page_response
 
 QUOTE_PATTERN = re.compile('"(.*)"')
+NEWS_PATTERN = re.compile(r'\W+')
 
 # 删除尾部列
 # 合并日期与时间列，生成时间列
@@ -74,3 +75,19 @@ def fetch_quotes(*stock_codes):
         dfs.append(_to_dataframe(content, p_codes))
     return pd.concat(dfs).sort_values('code')
 
+
+def fetch_globalnews():
+    """获取24*7全球财经新闻"""
+    url = 'http://live.sina.com.cn/zt/f/v/finance/globalnews1'
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, "lxml")
+    # 时间戳
+    stamps = [p.string for p in soup.find_all("p", class_="bd_i_time_c")]
+    # 标题
+    titles = [p.string for p in soup.find_all("p", class_="bd_i_txt_c")]
+    # 类别
+    categories = [re.sub(NEWS_PATTERN, '', p.string) for p in soup.find_all("p", class_="bd_i_tags")]
+    # 编码
+    data_mid = [div['data-mid'] for div in soup.find_all("div", class_="bd_i bd_i_og clearfix ")]
+
+    return stamps, titles, categories, data_mid
