@@ -266,3 +266,6 @@ cswd.sln
 /build
 /cswd.egg-info
 /dist
+
+# vs code
+.vscode/
