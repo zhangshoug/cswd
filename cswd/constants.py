@@ -6,7 +6,7 @@ import pandas as pd
 
 MARKET_START = pd.Timestamp('1990-12-10')
 
-ROOT_DIR_NAME = '~/.cswd'
+ROOT_DIR_NAME = '~/stockdata'
 
 DB_DIR_NAME = 'database'
 

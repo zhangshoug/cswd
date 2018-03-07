@@ -12,7 +12,7 @@ import pandas as pd
 import pytz
 
 from sqlalchemy import (MetaData, Table, Column, ForeignKey,
-                        DateTime, Date, Integer, Float, String, Boolean, SMALLINT, Text,
+                        DateTime, Date, BigInteger, Integer, Float, String, Boolean, SMALLINT, Text,
                         func
                         )
 
@@ -24,6 +24,13 @@ target_file = 'report_item_metadata.csv'
 report_item_meta = load_csv(target_file, kwargs={'encoding':'cp936'}) # 硬编码
 metadata = MetaData()
 
+# 全球财经新闻
+global_news = Table('global_news', 
+    metadata,
+    Column('m_id',         DateTime,   primary_key=True, index=True),
+    Column('content',      Text),
+    Column('pub_time',     String(8)), 
+    Column('categories',   String(100)))
 
 # 股票代码
 stock_codes = Table('stock_codes', 
@@ -44,7 +51,7 @@ trading_dates = Table('trading_dates',
 # 公司简称
 short_names = Table('short_names', 
     metadata,
-    #Column('code',         String,   ForeignKey('stock_codes.code'),   primary_key=True, index=True),
+    #Column('code',        String,   ForeignKey('stock_codes.code'),   primary_key=True, index=True),
     Column('code',         String,   primary_key=True, index=True),
     Column('date',         Date,     primary_key = True),
     Column('short_name',   String,   nullable = False), 

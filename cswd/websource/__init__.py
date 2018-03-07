@@ -1,5 +1,5 @@
 from .date_utils import *
-from .sina import fetch_quotes
+from .sina import fetch_quotes, fetch_globalnews
 from .fenghuang import fetch_gpgk
 
 from .juchao import (fetch_symbols_list, 
@@ -26,6 +26,7 @@ from .tencent import (fetch_qq_industry_categories,
                       get_recent_trading_stocks)
 
 from .ths import fetch_ipo_info
+
 
 from .treasuries import EARLIEST_POSSIBLE_DATE, fetch_treasury_by_year, fetch_treasury_data_from
 
@@ -81,5 +82,6 @@ __all__ = [
     'fetch_minutely_prices',
     'get_recent_trading_stocks',
     'fetch_ipo_info',
-    'fetch_quotes'
+    'fetch_quotes',
+    'fetch_globalnews',
 ]

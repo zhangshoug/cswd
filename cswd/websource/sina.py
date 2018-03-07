@@ -4,6 +4,9 @@
 """
 import re
 import pandas as pd
+from bs4 import BeautifulSoup
+import requests
+from datetime import date
 from .base import friendly_download, get_page_response
 
 QUOTE_PATTERN = re.compile('"(.*)"')
@@ -80,14 +83,15 @@ def fetch_globalnews():
     """获取24*7全球财经新闻"""
     url = 'http://live.sina.com.cn/zt/f/v/finance/globalnews1'
     response = requests.get(url)
+    today = date.today()
     soup = BeautifulSoup(response.content, "lxml")
+
     # 时间戳
     stamps = [p.string for p in soup.find_all("p", class_="bd_i_time_c")]
     # 标题
     titles = [p.string for p in soup.find_all("p", class_="bd_i_txt_c")]
     # 类别
     categories = [re.sub(NEWS_PATTERN, '', p.string) for p in soup.find_all("p", class_="bd_i_tags")]
-    # 编码
-    data_mid = [div['data-mid'] for div in soup.find_all("div", class_="bd_i bd_i_og clearfix ")]
-
+    # 编码bd_i bd_i_og clearfix
+    data_mid = pd.to_datetime(['{} {}'.format(str(today), t) for t in stamps])
     return stamps, titles, categories, data_mid

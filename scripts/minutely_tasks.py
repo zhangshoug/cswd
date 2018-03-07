@@ -1,3 +1,7 @@
+"""
+交易时段内每分钟执行一次
+"""
+
 import os
 
 from cswd.utils import round_price_to_penny, data_root

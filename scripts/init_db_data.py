@@ -1,5 +1,5 @@
 """
-使用脚本初始化数据库
+初始化数据库脚本
 """
 
 def refresh_stock_base_data():
@@ -89,6 +89,3 @@ def main():
     refresh_trading_data()
     refresh_index_data()
     refresh_finance_data()
-
-if __name__=='__main__':
-    main()
