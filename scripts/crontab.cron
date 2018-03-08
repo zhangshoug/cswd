@@ -1,0 +1,51 @@
+# 计划任务参考样本
+# Edit this file to introduce tasks to be run by cron.
+# 
+# Each task to run has to be defined through a single line
+# indicating with different fields when the task will be run
+# and what command to run for the task
+# 
+# To define the time you can provide concrete values for
+# minute (m), hour (h), day of month (dom), month (mon),
+# and day of week (dow) or use '*' in these fields (for 'any').# 
+# Notice that tasks will be started based on the cron's system
+# daemon's notion of time and timezones.
+# 
+# （0表示星期天） 
+# Output of the crontab jobs (including errors) is sent through
+# email to the user the crontab file belongs to (unless redirected).
+# 
+# For example, you can run a backup of all your user accounts
+# at 5 a.m every week with:
+# 0 5 * * 1 tar -zcf /var/backups/home.tgz /home/
+# 
+# For more information see the manual pages of crontab(5) and cron(8)
+# 备注
+# 1.不使用sudo
+# 2.需要设定环境路径变量
+# 3.运行脚本（使用激活环境后再用命令行，无法正确执行）
+
+# 在所在的环境下运行 echo $PATH，拷贝至此
+PATH=/home/ldf/anaconda3/envs/fsweb/bin:/home/ldf/anaconda3/bin:/home/ldf/bin:/home/ldf/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+
+# 24小时财经新闻（每分钟执行一次）
+*/1 * * * * python /home/ldf/cswd/scripts/per_minutely_tasks.py
+
+# 融资融券（每周一到周六早上点执行一次）
+15 09 * * 1-6 python /home/ldf/cswd/scripts/am_9_margindata.py >> /home/ldf/stockdata/logs/margin.log 2>&1
+
+# 财务公告，权益变动（每天8、12、16、20点执行一次）
+0 08,12,16,20 * * * python /home/ldf/cswd/scripts/hourly_tasks.py >> /home/ldf/stockdata/logs/info.log 2>&1
+
+# 分时交易（每周一到五交易时段内每分钟执行一次）
+25-59 09 * * 1-5 python /home/ldf/cswd/scripts/minutely_tasks.py >> /home/ldf/stockdata/logs/live_trading.log 2>&1
+*     10 * * 1-5 python /home/ldf/cswd/scripts/minutely_tasks.py >> /home/ldf/stockdata/logs/live_trading.log 2>&1
+0-30  11 * * 1-5 python /home/ldf/cswd/scripts/minutely_tasks.py >> /home/ldf/stockdata/logs/live_trading.log 2>&1
+*  13-14 * * 1-5 python /home/ldf/cswd/scripts/minutely_tasks.py >> /home/ldf/stockdata/logs/live_trading.log 2>&1
+
+# 实时报价（上午、下午交易时段内提取实时报价数据（内部循环控制，只需确定启动时间），视运行状况，每秒采集1-2次）
+15 09  * * 1-5 python /home/ldf/cswd/scripts/live_quote.py >> /home/ldf/stockdata/logs/quote.log 2>&1 
+0  13  * * 1-5 python /home/ldf/cswd/scripts/live_quote.py >> /home/ldf/stockdata/logs/quote.log 2>&1
+
+# 盘后日线数据（每周一到五18点开始刷新）
+0 18 * * 1-5 python /home/ldf/cswd/scripts/daily_tasks.py >> /home/ldf/stockdata/logs/daily_trading_data.log 2>&1

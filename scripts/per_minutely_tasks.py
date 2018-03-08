@@ -21,3 +21,7 @@ def fresh_globalnews():
             except:
                 # 原始数据时间按降序排列，一旦重复即退出循环
                 break
+
+
+if __name__=='__main__':
+    fresh_globalnews()

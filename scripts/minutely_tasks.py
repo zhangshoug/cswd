@@ -20,3 +20,6 @@ def main():
         df = round_price_to_penny(df)
         df.to_csv(file_path)
 
+if __name__=='__main__':
+    main()
+
