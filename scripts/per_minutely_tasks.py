@@ -12,15 +12,17 @@ def fresh_globalnews():
     engine = get_engine()
     with engine.connect() as conn:
         for i in range(len(stamps)):
-            ins = global_news.insert().values(m_id = data_mid[i],
-                                              content=titles[i],
-                                              pub_time=stamps[i],
-                                              categories=categories[i])
-            try:
-                conn.execute(ins)   
-            except:
-                # 原始数据时间按降序排列，一旦重复即退出循环
-                break
+            if len(titles[i]):
+                # 有时解析的标题内容为空
+                ins = global_news.insert().values(m_id = data_mid[i],
+                                                content=titles[i],
+                                                pub_time=stamps[i],
+                                                categories=categories[i])
+                try:
+                    conn.execute(ins)   
+                except:
+                    # 原始数据时间按降序排列，一旦重复即退出循环
+                    break
 
 
 if __name__=='__main__':
