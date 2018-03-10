@@ -30,7 +30,7 @@ global_news = Table('global_news',
     Column('m_id',         DateTime,   primary_key=True, index=True),
     Column('content',      Text),
     Column('pub_time',     String(8)), 
-    Column('categories',   String(100)))
+    Column('categories',   String(10)))
 
 # 股票代码
 stock_codes = Table('stock_codes', 
