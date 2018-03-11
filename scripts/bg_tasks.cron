@@ -13,9 +13,9 @@
 PATH=/home/ldf/anaconda3/envs/fsweb/bin:/home/ldf/anaconda3/bin:/home/ldf/bin:/home/ldf/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
 
 # 24小时财经新闻（每分钟执行一次）
-* * * * * python /home/ldf/cswd/scripts/per_minutely_tasks.py
+* * * * * python /home/ldf/cswd/scripts/per_minutely_tasks.py >> /home/ldf/stockdata/logs/global_news.log 2>&1
 
-# 融资融券（每周一到周六早上点执行一次）
+# 融资融券（每周一到周六早上9：15点执行一次）
 15 09 * * 1-6 python /home/ldf/cswd/scripts/am_9_margindata.py >> /home/ldf/stockdata/logs/margin.log 2>&1
 
 # 财务公告，权益变动（每天8、12、16、20点执行一次）

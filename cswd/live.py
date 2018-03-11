@@ -21,6 +21,7 @@ log = logbook.Logger('实时报价')
 
 class QuoteMonitor(object):
     """股票实时报价监控器"""
+
     def __init__(self, date_str=None, per_minute=60):
         """
         Parameter:
@@ -35,7 +36,7 @@ class QuoteMonitor(object):
         else:
             self._date = pd.Timestamp(date_str).date()
         self.per_minute = per_minute
-        self.available_codes = StockCodeData.available_codes(status = 1)
+        self.available_codes = StockCodeData.available_codes(status=1)
 
     @property
     def date(self):
@@ -47,7 +48,7 @@ class QuoteMonitor(object):
         f = self.date.strftime('%Y%m%d')
         p = d / f
         if not p.exists():
-            p.mkdir(parents=True,exist_ok=False)
+            p.mkdir(parents=True, exist_ok=False)
         return p
 
     @property
@@ -77,10 +78,10 @@ class QuoteMonitor(object):
                 tn = max([int(x[2:]) for x in store.keys()])
                 return tn
             except KeyError:
-                warn('路径{}\n不存在数据'.format(self.store_path))        
+                warn('路径{}\n不存在数据'.format(self.store_path))
 
     def get_time(self, idx):
-        return pd.Timestamp(idx,unit='s',tz='Asia/Shanghai')
+        return pd.Timestamp(idx, unit='s', tz='Asia/Shanghai')
 
     def _save_df(self, df):
         with pd.HDFStore(self.store_path) as store:
@@ -108,7 +109,7 @@ class QuoteMonitor(object):
         idx = self.last_idx
         return self.read(idx)
 
-    def get_previous_data(self, step = 1):
+    def get_previous_data(self, step=1):
         """向前追溯"""
         try:
             idx = self.idies[-step]
@@ -121,4 +122,4 @@ class QuoteMonitor(object):
         """判断当天是否为交易日期"""
         codes = np.random.permutation(self.available_codes)[:100]
         df = fetch_QuoteMonitors(*codes)
-        return any(df['datetime'].map(lambda x:x.date()) == self.date)
+        return any(df['datetime'].map(lambda x: x.date()) == self.date)
