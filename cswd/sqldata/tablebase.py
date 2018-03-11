@@ -33,8 +33,6 @@ def _create_index_after_refresh(table_name):
     注：
         数据刷新在后台计划任务程序中完成，为提高查询速度，
         一旦完成表数据刷新，重新按主键重建索引。
-        提高了速度?
-        使用组合主键索引?
     """
     engine = get_engine()
     table = metadata.tables[table_name]
