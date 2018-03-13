@@ -11,7 +11,7 @@ import pandas as pd
 import numpy as np
 
 from cswd.sqldata.stock_code import StockCodeData
-from cswd import fetch_QuoteMonitors
+from cswd import fetch_quotes
 from cswd import data_root
 
 import logbook
@@ -91,7 +91,7 @@ class QuoteMonitor(object):
     def refresh(self):
         """提取网络数据，存储在本地"""
         for _ in range(self.per_minute):
-            df = fetch_QuoteMonitors(*self.available_codes)
+            df = fetch_quotes(*self.available_codes)
             self._save_df(df)
             log.info('当前序号：{}，数据shape={}'.format(self.current_idx, df.shape))
 

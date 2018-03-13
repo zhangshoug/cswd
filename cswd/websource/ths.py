@@ -62,3 +62,14 @@ def fetch_ipo_info(stock_code):
     result['lead_underwriter'] = data.iloc[3,0].split('：')[1].split()[0]
     result['listed_referrals'] = data.iloc[3,0].split('：')[2]    # 上市保荐人
     return result
+
+def fetch_concept_list():
+    """概念列表"""
+    url = 'http://q.10jqka.com.cn/gn/'
+    url = 'http://q.10jqka.com.cn/api.php?t=gnldt&d=jsonp'
+    response = get_page_response(url)
+
+
+def fetch_concept_stock_list():
+    """概念股票列表"""
+    pass

@@ -2,16 +2,16 @@
 腾讯股票数据处理模块
 
 数据类别：
-    腾讯行业分类                fetch_qq_industry_categories
+    腾讯行业分类                 fetch_qq_industry_categories
     概念分类                    fetch_concept_categories
     地域分类                    fetch_region_categories
-    证监会行业分类              fetch_csrc_industry_categories
-    腾讯行业股票列表            fetch_qq_industry_stocks
+    证监会行业分类               fetch_csrc_industry_categories
+    腾讯行业股票列表             fetch_qq_industry_stocks
     概念股票列表                fetch_concept_stocks
     地域股票列表                fetch_region_stocks
-    证监会行业股票列表          fetch_csrc_industry_stocks
-    股票成交数据（每分钟更新）  fetch_minutely_prices
-    最近交易的股票清单          get_recent_trading_stocks
+    证监会行业股票列表           fetch_csrc_industry_stocks
+    股票成交数据（每分钟更新）    fetch_minutely_prices
+    最近交易的股票清单           get_recent_trading_stocks
 """
 
 import re
