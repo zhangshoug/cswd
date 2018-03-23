@@ -68,7 +68,6 @@ setup(
              'scripts/am_9_margindata.py',
              'scripts/minutely_tasks.py',
              'scripts/per_minutely_tasks.py',
-             'scripts/refresh_finance_data'，
              'scripts/weekly_tasks.py'],
     entry_points={
         'console_scripts': [
@@ -78,7 +77,6 @@ setup(
             'weekly_check_stock_data = weekly_tasks:main',
             'refresh_daily_margin_data = am_9_margindata:main',
             'minutely_feed_news = per_minutely_tasks:fresh_globalnews',
-            'refresh_finance_data = refresh_finance_data:main'
         ],
     },
     author="LDF",
