@@ -5,7 +5,10 @@ import numpy as np
 from logbook import Logger
 
 from .exceptions import ConnectFailed, ThreeTryFailed
+from .utils import get_server_name
 
+# 可能会遇到服务器定期重启，导致网络中断。休眠时长应大于重启完成时间
+MAX_SLEEP = 2
 logger = Logger(__name__)
 
 
@@ -22,10 +25,15 @@ def _get(url, params, timeout):
             r = requests.get(url, params=params, timeout=timeout)
             if r.status_code == requests.codes.ok:
                 return r
+        except requests.exceptions.ConnectionError:
+            logger.info('第{}次尝试。无法联通服务器：{}'.format(
+            	i + 1, get_server_name(url)))
+            time.sleep(MAX_SLEEP)
+            continue
         except Exception as e:
             logger.info('第{}次尝试。错误：{}'.format(i + 1, e.args))
         time.sleep(0.1)
-    raise ThreeTryFailed('三次尝试下载，失败。网址：{}'.format(url))
+    raise ConnectFailed('三次尝试均失败。服务器：{}'.format(get_server_name(url)))
 
 
 def _post(url, params, timeout):
@@ -34,10 +42,15 @@ def _post(url, params, timeout):
             r = requests.post(url, params=params, timeout=timeout)
             if r.status_code == requests.codes.ok:
                 return r
+        except requests.exceptions.ConnectionError:
+            logger.info('第{}次尝试。无法联通服务器：{}'.format(
+            	i + 1, get_server_name(url)))
+            time.sleep(MAX_SLEEP)
+            continue
         except Exception as e:
             logger.info('第{}次尝试。错误：{}'.format(i + 1, e.args))
         time.sleep(0.1)
-    raise ThreeTryFailed('三次尝试下载，失败。网址：{}'.format(url))
+    raise ConnectFailed('三次尝试均失败。服务器：{}'.format(get_server_name(url)))
 
 
 def get_page_response(url, method='get', params=None, timeout=(6, 3)):
