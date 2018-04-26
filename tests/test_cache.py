@@ -47,21 +47,6 @@ class Test_cache(unittest.TestCase):
 
         assert_frame_equal(df_1, df_2)
 
-    def test_gpgk_reader(self):
-        """测试股票概括读取"""
-        stock_code = '000010'
-        a0,b0,c0 = fetch_gpgk(stock_code=stock_code)
-        a1,b1,c1 = gpjk_reader.read(stock_code=stock_code)
-        assert_frame_equal(a0,a1)
-        assert_frame_equal(b0,b1)
-        assert_frame_equal(c0,c1)               
-        stock_code = '600645'
-        a0,b0,c0 = fetch_gpgk(stock_code=stock_code)
-        a1,b1,c1 = gpjk_reader.read(stock_code=stock_code)
-        assert_frame_equal(a0,a1)
-        assert_frame_equal(b0,b1)
-        assert_frame_equal(c0,c1)
-
     def test_cache_file_name(self):
         # 使用函数默认值时，尽管意义相同，结果一样，hash表示不一样
         # 最终导致存储路径发生变化而重复下载
