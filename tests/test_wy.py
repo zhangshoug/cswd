@@ -102,15 +102,6 @@ class Test_wy(unittest.TestCase):
         ps_3 = fetch_report_periods(stock_code, 'jjcg')
         self.assertIn('2017-06-30', ps_3)
 
-    def test_jjcg(self):
-        """测试抓取基金持股数据"""
-        stock_code = '000333'
-        query_date = pd.Timestamp('2017-12-31')
-        kwargs = {'encoding': 'utf-8'}
-        web_df = fetch_jjcg(stock_code, query_date)
-        expect_df = load_csv('jjcg_000333.csv', kwargs=kwargs)
-        assert_frame_equal(web_df, expect_df)
-
     def test_gd_top10(self):
         """测试抓取前十大股东数据"""
         stock_code = '000333'
@@ -150,8 +141,8 @@ class Test_wy(unittest.TestCase):
         start = pd.Timestamp('2015-2-3')
         end = pd.Timestamp('2017-12-31')
         kwargs = {'encoding': 'utf-8', 'na_values': ['NaN']}
-        report_types = ('report','year','season')
-        parts = ('zhzb','ylnl','chnl','cznl','yynl')
+        report_types = ('report', 'year', 'season')
+        parts = ('zhzb', 'ylnl', 'chnl', 'cznl', 'yynl')
         for report_type in report_types:
             for part in parts:
                 web_df = fetch_financial_indicator(
@@ -163,6 +154,7 @@ class Test_wy(unittest.TestCase):
                 # 检查所有期间季度日期内，所对应的序列是否相等
                 for d in ds:
                     assert_series_equal(web_df[d], expect_df[d])
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
