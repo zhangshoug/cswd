@@ -1,7 +1,16 @@
 """
+配置过程
+1. 下载geckodriver对应版本
+2. 解压
+3. $sudo mv ./geckodriver /usr/local/bin/
+4. $sudo chmod a+x /usr/local/bin/geckodriver
+5. $geckodriver 
+
 使用firefox读取同花顺网页数据
 
 由于网页加载时间与网速、本机配置等多种因素相关，请注意调整休眠时长
+
+# TODO:删除！！！
 """
 
 import json
@@ -114,7 +123,6 @@ def fetch_concept_info():
     dfs = []
     for page in range(1, total_num+1):
         url = url_fmt.format(page)
-        print(url)
         df = _read_page_table(browser, url, table_class)
         if len(df):
             dfs.append(df)

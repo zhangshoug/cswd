@@ -2,91 +2,96 @@
 网易数据处理模块
 
 数据类别：
-    指数代码、名称              get_index_base
-    主要指数列表                get_main_index
+    指数代码名称               get_index_base
+    主要指数列表               get_main_index
     股票指数交易数据            fetch_history
-    股票指数OHLCV数据           fetch_ohlcv
-    财务指标                    fetch_financial_indicator
-    财务报表                    fetch_financial_report 
-    业绩预告                    fetch_performance_notice
-    股东变动                    fetch_jjcg, fetch_top10_stockholder
-    融资融券                    fetch_margin_data
-TODO：
-    龙虎榜
+    股票指数OHLCV数据          fetch_ohlcv
+    财务指标                  fetch_financial_indicator
+    财务报表                  fetch_financial_report 
+    业绩预告                  fetch_performance_notice
+    股东变动                  fetch_jjcg, fetch_top10_stockholder
+    融资融券                  fetch_margin_data
+
 """
+from urllib.error import HTTPError
 from bs4 import BeautifulSoup
+import requests
 import pandas as pd
 import re
 from functools import partial, lru_cache
 from io import StringIO, BytesIO
 
-from ..utils import sanitize_dates
+from ..common.utils import sanitize_dates
 
-from .base import get_page_response
+from .base import get_page_response, friendly_download
 from .exceptions import NoWebData, NoDataBefore
 
 
-_WY_STOCK_HISTORY_NAMES = ['name','close','high','low','open','prev_close', 
-                           'change','change_pct','turnover','volume','amount','tmv','cmv']
-_OHLCV = ['open','high','low','close','volume']
-_WY_INDEX_HISTORY_NAMES = ['name','close','high','low','open','prev_close', 'change','change_pct','volume','amount']
-_WY_INDEX_HISTORY_USE_COLS = list(set(range(15)).difference((1, 10, 13, 14, 15)))
+_WY_STOCK_HISTORY_NAMES = ['name', 'close', 'high', 'low', 'open', 'prev_close',
+                           'change', 'change_pct', 'turnover', 'volume', 'amount', 'tmv', 'cmv']
+_OHLCV = ['开盘价', '最高价', '最低价', '收盘价', '成交量']
+_WY_INDEX_HISTORY_NAMES = ['name', 'close', 'high', 'low', 'open',
+                           'prev_close', 'change', 'change_pct', 'volume', 'amount']
+_WY_INDEX_HISTORY_USE_COLS = list(
+    set(range(15)).difference((1, 10, 13, 14, 15)))
 _WY_STOCK_HISTORY_USE_COLS = list(set(range(15)).difference([1]))
-_CJMX_COLS = ('datetime','price','change','volume','amount','direction')
+_CJMX_COLS = ('时间', '价格', '涨跌额', '成交量', '成交额', '方向')
 
-_WY_MARGIN_DATA_USE_COLS = [1,4,5,6,7,8,9,10,11]
-_WY_MARGIN_DATA_COL_NAMES = ['股票代码','融资余额','融资买入额','融资偿还额',
-                             '融券余量','融券卖出量','融券偿还量','融券余量金额','融券余额']
+_WY_MARGIN_DATA_USE_COLS = [1, 4, 5, 6, 7, 8, 9, 10, 11]
+_WY_MARGIN_DATA_COL_NAMES = ['股票代码', '融资余额', '融资买入额', '融资偿还额',
+                             '融券余量', '融券卖出量', '融券偿还量', '融券余量金额', '融券余额']
 
 MARGIN_START = pd.Timestamp('2010-3-31').date()
+
 
 def get_index_base():
     """获取上海及深圳指数代码、名称表"""
     url_fmt = 'http://quotes.money.163.com/hs/service/hsindexrank.php?host=/hs/service/'
     url_fmt += 'hsindexrank.php&page={page}&query=IS_INDEX:true;EXCHANGE:CNSE{ex}&fields=no,SYMBOL,NAME&'
     url_fmt += 'sort=SYMBOL&order=asc&count={count}&type=query'
-    one_big_int = 10000 #设定一个比较大的整数
+    one_big_int = 10000  # 设定一个比较大的整数
+
     def get_index_from(ex):
-        url = url_fmt.format_map({'page':0, 'ex':ex, 'count':one_big_int})
+        url = url_fmt.format_map({'page': 0, 'ex': ex, 'count': one_big_int})
         #response = get_response(url, 'get', 'json')
         response = get_page_response(url, method='post')
         df = pd.DataFrame(response.json()['list'])
-        return df.loc[:,['SYMBOL','NAME']]
+        return df.loc[:, ['SYMBOL', 'NAME']]
     # 查询代码（深圳+1，上海+0）
     dfs = [get_index_from('SH'), get_index_from('SZ')]
     df = pd.concat(dfs)
     df.columns = df.columns.str.lower()
-    df.rename(columns={'symbol':'code'}, inplace=True)
-    df.set_index('code',inplace=True,drop=True)
+    df.rename(columns={'symbol': 'code'}, inplace=True)
+    df.set_index('code', inplace=True, drop=True)
     return df
 
 
 def get_main_index():
     """主要指数列表"""
-    df = pd.DataFrame({'name':['上证指数',
-                               'A股指数',
-                               'B股指数',
-                               '上证50',
-                               '沪深300',
-                               '深证成指',
-                               '深成指R',
-                               '成份B指',
-                               '创业板指',
-                               '创业板综',
-                               '深证综指'],
-                       'code':['000001',
-                               '000002',
-                               '000003',
-                               '000016',
-                               '000300',
-                               '399001',
-                               '399002',
-                               '399003',
-                               '399006',
-                               '399102',
-                               '399106']
+    df = pd.DataFrame({'name': ['上证指数',
+                                'A股指数',
+                                'B股指数',
+                                '上证50',
+                                '沪深300',
+                                '深证成指',
+                                '深成指R',
+                                '成份B指',
+                                '创业板指',
+                                '创业板综',
+                                '深证综指'],
+                       'code': ['000001',
+                                '000002',
+                                '000003',
+                                '000016',
+                                '000300',
+                                '399001',
+                                '399002',
+                                '399003',
+                                '399006',
+                                '399102',
+                                '399106']
                        })
-    df.set_index('code', inplace = True)
+    df.set_index('code', inplace=True)
     return df
 
 
@@ -104,59 +109,77 @@ def _query_code(code, is_index):
     return code
 
 
-def fetch_history(code, start, end = None, is_index = False):
-    """获取股票或者指数的历史交易数据（不复权）"""
+@friendly_download()
+def fetch_history(code, start, end=None, is_index=False):
+    """获取股票或者指数的历史交易数据（不复权）
+    备注：
+        提供的数据延迟一日
+        TODO：开市前后再下载，观察结果
+    """
     start, end = sanitize_dates(start, end)
     url_fmt = 'http://quotes.money.163.com/service/chddata.html?code={}&start={}&end={}'
     code = _query_code(code, is_index)
     start_str = start.strftime('%Y%m%d')
     end_str = end.strftime('%Y%m%d')
-    url = url_fmt.format(code, start_str, end_str)
-
-    na_values = ['None','--','none']
-    if is_index:
-        dtype = None
-        usecols = _WY_INDEX_HISTORY_USE_COLS
-        columns = _WY_INDEX_HISTORY_NAMES
-    else:
-        dtype = None
-        usecols = _WY_STOCK_HISTORY_USE_COLS
-        columns = _WY_STOCK_HISTORY_NAMES
+    url = url_fmt.format(code, start_str, end_str)  # + '#01b07'
+    na_values = ['None', '--', 'none']
     kwds = {
-        'index_col':0,
-        'encoding':'cp936',
-        'usecols':usecols,
-        'parse_dates':True,
-        'na_values':na_values,
+        'index_col': 0,
+        'encoding': 'cp936',
+        # 'usecols':usecols,
+        'parse_dates': True,
+        'na_values': na_values,
     }
     page_response = get_page_response(url, 'get')
     df = pd.read_csv(BytesIO(page_response.content), **kwds)
-    df.columns = columns
-    df.index.name = 'date'
-    df.sort_index(inplace=True)
     return df
 
 
-def fetch_ohlcv(code, start, end, is_index = False):
+def fetch_ohlcv(code, start, end, is_index=False):
     """提取股票或指数_OHLCV数据（不复权）"""
-    return fetch_history(code,start,end,is_index)[_OHLCV]
+    return fetch_history(code, start, end, is_index)[_OHLCV]
 
 
-#def fetch_cjmx(code, tdate):
-#    """提取股票历史交易明细"""
-#    _, tdate = sanitize_dates(None, tdate)
-#    url_fmt = 'http://quotes.money.163.com/cjmx/{qyear}/{qdate}/{qcode}.xls'
-#    qyear = tdate.year
-#    qdate = tdate.strftime('%Y%m%d')
-#    qcode = _query_code(code, False)
-#    url = url_fmt.format_map({'qyear':qyear, 'qdate':qdate, 'qcode':qcode})
-#    na_values = ['None','--','none']
-#    kwds = {'na_values':na_values}
-#    df = pd.read_excel(url, **kwds)
-#    df.columns = _CJMX_COLS
-#    df['datetime'] = pd.to_datetime(df['datetime'].str.cat([tdate.strftime('%Y-%m-%d')] * len(df), sep = ' '))
-#    df.set_index('datetime', inplace = True)
-#    return df
+def fetch_last_history():
+    """
+    最新日线成交
+
+    注意：
+        区别于fetch_history，用于提取全部股票最新的日线交易数据。
+    """
+    url = "http://quotes.money.163.com/hs/service/diyrank.php?"
+    # url += "host=http://quotes.money.163.com/hs/service/diyrank.php&"
+    url += "page=0&query=STYPE:EQA&fields=SYMBOL,NAME,PRICE,PERCENT,OPEN,YESTCLOSE,"
+    url += "HIGH,LOW,VOLUME,TURNOVER,PE,MCAP,TCAP&sort=PERCENT&"
+    url += "order=desc&count=5000&type=query"
+    r = requests.get(url)
+    df = pd.DataFrame.from_records(r.json()['list'])
+    return df
+
+
+def fetch_cjmx(code, tdate):
+   """
+   提取股票历史交易明细
+
+   缺点：
+        只能下载近期的数据
+   """
+   _, tdate = sanitize_dates(None, tdate)
+   url_fmt = 'http://quotes.money.163.com/cjmx/{qyear}/{qdate}/{qcode}.xls'
+   qyear = tdate.year
+   qdate = tdate.strftime('%Y%m%d')
+   qcode = _query_code(code, False)
+   url = url_fmt.format_map({'qyear': qyear, 'qdate': qdate, 'qcode': qcode})
+   na_values = ['None', '--', 'none']
+   kwds = {'na_values': na_values}
+   try:
+       df = pd.read_excel(url, **kwds)
+   except HTTPError:
+       raise NoWebData('网页数据不存在。股票：{}，日期：{}'.format(code, tdate))
+   df.columns = _CJMX_COLS
+   df.insert(0, '日期', tdate)
+   df.insert(0, '股票代码', code)
+   return df
 
 
 def _cwzb_url(code, type, part):
@@ -167,89 +190,91 @@ def _cwzb_url(code, type, part):
     if part == 'zhzb':
         url = url_fmt1.format(code, type)
     else:
-        url = url_fmt2.format(code, type, part)   
+        url = url_fmt2.format(code, type, part)
     return url
 
 
-def _report_url(code, type, report):
+def _report_url(code, type_, report):
     """财务报告网址"""
     url_fmt = 'http://quotes.money.163.com/service/{}_{}.html?type={}'
-    return url_fmt.format(report, code, type)
+    return url_fmt.format(report, code, type_)
 
 
 def _parse_report_data(url):
     response = get_page_response(url)
     #response.encoding = 'gb2312'
     # 000001资产负债表 -> 应收出口退税(万元) -> ' --' 导致解析类型不正确！！！
-    na_values = ['--', ' --', '-- ']   
-    return pd.read_csv(StringIO(response.text), na_values = na_values).iloc[:,:-1]
+    na_values = ['--', ' --', '-- ']
+    return pd.read_csv(StringIO(response.text), na_values=na_values).iloc[:, :-1]
 
 
-def fetch_financial_indicator(code, report_type, part = ''):
+@friendly_download()
+def fetch_financial_indicator(code, report_type, part):
     """
     财务指标
     ---------------
         类别：
-            report_type       含义
-            __________________________
-            report     按报告期
-            year       按年度
-            season     按单季度
+            report_type      含义
+            ———————————      ———————
+            report           按报告期
+            year             按年度
+            season           按单季度
         项目：
-            part       含义
-            __________________________
-            zhzb       综合指标
-            ylnl       盈利能力
-            chnl       偿还能力
-            cznl       成长能力
-            yynl       营运能力
+            part             含义
+            ————————         ——————
+            zhzb             综合指标
+            ylnl             盈利能力
+            chnl             偿还能力
+            cznl             成长能力
+            yynl             营运能力
     """
-    assert report_type in ('report','year','season')
-    assert part in ('zhzb','ylnl','chnl','cznl','yynl')
+    assert report_type in ('report', 'year', 'season')
+    assert part in ('zhzb', 'ylnl', 'chnl', 'cznl', 'yynl')
     url = _cwzb_url(code, report_type, part)
-    data = pd.read_csv(url, na_values = ['--', ' --', '-- '], encoding='gb2312').iloc[:,:-1]
+    data = pd.read_csv(
+        url, na_values=['--', ' --', '-- '], encoding='gb2312').iloc[:, :-1]
     return data
 
 
+@friendly_download()
 def fetch_financial_report(code, report_type, report_item):
     """
     财务报表
     ---------------
         类别：
-            report_type  含义
-            __________________________
-            report       按报告期
-            year         按年度
+            report_type     含义
+            ———————————     ———————
+            report          按报告期
+            year            按年度
 
         项目：
             report_item     含义
-            __________________________
-            lrb          利润表
-            zcfzb        资产负债表
-            xjllb        现金流量表
+            ———————————     ———————
+            lrb             利润表
+            zcfzb           资产负债表
+            xjllb           现金流量表
     """
-    assert report_type in ('report','year')
-    assert report_item in ('lrb','zcfzb','xjllb')
+    assert report_type in ('report', 'year')
+    assert report_item in ('lrb', 'zcfzb', 'xjllb')
     url = _report_url(code, report_type, report_item)
-    #data = _parse_report_data(url)
-    #report_name = '{}By{}'.format(report_item.capitalize(),
-    #report_type.capitalize())
-    #data.report_name = report_name
-    data = pd.read_csv(url, na_values = ['--', ' --', '-- '], encoding='gb2312').iloc[:,:-1]
+    data = pd.read_csv(
+        url, na_values=['--', ' --', '-- '], encoding='gb18030').iloc[:, :-1]
     return data
 
 
 def _parse_performance_notice(raw_df):
     """将DataFrame对象解析为字典"""
     data = {}
-    data['date'] = pd.to_datetime(raw_df.iloc[0,1], errors='coerce')
-    data['announcement_date'] = pd.to_datetime(raw_df.iloc[0,3], errors='coerce')
-    data['notice_type'] = raw_df.iloc[1,1]
-    data['forecast_summary'] = raw_df.iloc[2,1]
-    data['forecast_content'] = raw_df.iloc[3,1]
+    data['date'] = pd.to_datetime(raw_df.iloc[0, 1], errors='coerce')
+    data['announcement_date'] = pd.to_datetime(
+        raw_df.iloc[0, 3], errors='coerce')
+    data['notice_type'] = raw_df.iloc[1, 1]
+    data['forecast_summary'] = raw_df.iloc[2, 1]
+    data['forecast_content'] = raw_df.iloc[3, 1]
     return data
 
-def fetch_performance_notice(stock_code, output_type = 'list'):
+
+def fetch_performance_notice(stock_code, output_type='list'):
     """业绩预告
     如果输出类型为list，则输出dict列表
     否则，输出DataFrame对象。
@@ -258,7 +283,7 @@ def fetch_performance_notice(stock_code, output_type = 'list'):
     url = url_fmt.format(stock_code)
     response = get_page_response(url)
     dfs = pd.read_html(response.text, match='报告日期',
-                       attrs={'class':'table_bg001 border_box table_details'})
+                       attrs={'class': 'table_bg001 border_box table_details'})
     result = [_parse_performance_notice(df) for df in dfs]
     if output_type == 'list':
         return result
@@ -267,18 +292,6 @@ def fetch_performance_notice(stock_code, output_type = 'list'):
         df.set_index('announcement_date', inplace=True)
         return df
 
-#QUOTE_PATTERN = re.compile('^_ntes_quote_callback({(?P<content>.*)\s});$')
-def fetch_realtime_quotes(stock_codes):
-    assert isinstance(stock_codes, list)
-    url_fmt = 'http://api.money.netease.com/data/feed/{},money.api'
-    q_codes = partial(_query_code, is_index = False) 
-    codes = list(map(q_codes, stock_codes))
-    url = url_fmt.format(','.join(codes))
-    page_response = get_page_response(url)
-    content = page_response.text[21:-2]
-    out = pd.read_json(content)
-    out.columns = out.loc['symbol',:].values
-    return out
 
 def fetch_company_info(stock_code):
     """获取公司简介、IPO信息（作为巨潮公司简要信息的补充）"""
@@ -290,7 +303,7 @@ def fetch_company_info(stock_code):
 
 
 @lru_cache(None)
-def _stockholder_periods(stock_code, type_, target_num = 0):
+def fetch_report_periods(stock_code, query):
     """
     下载股东持股、基金持股时，网络已有可供下载的期间
 
@@ -298,12 +311,23 @@ def _stockholder_periods(stock_code, type_, target_num = 0):
         键：期末日期 eg 2017-06-30
         值：2017-06-30,2017-03-31
     """
+    valid_types = ('c', 't', 'jjcg')
+    assert query in valid_types, '{}不在有效类型{}中'.format(query, valid_types)
+    if query == 'jjcg':
+        type_ = 'jjcg'
+        target_num = 0
+    elif query == 't':
+        type_ = 'gdfx'
+        target_num = 1
+    else:
+        type_ = 'gdfx'
+        target_num = 0
     result = {}
     url_fmt = 'http://quotes.money.163.com/f10/{type}_{stock_code}.html'
     url = url_fmt.format(stock_code=stock_code, type=type_)
-    response = get_page_response(url,'post')
+    response = get_page_response(url, 'post')
     soup = BeautifulSoup(response.text, 'lxml')
-    ss = soup.find_all('select',{'id':'','name':''})
+    ss = soup.find_all('select', {'id': '', 'name': ''})
     # 找到对应的选项父节点
     target = ss[target_num]
     for o in target.find_all('option'):
@@ -312,7 +336,8 @@ def _stockholder_periods(stock_code, type_, target_num = 0):
     return result
 
 
-def fetch_top10_stockholder(stock_code, query_date, type_ = 'c'):
+@friendly_download()
+def fetch_top10_stockholder(stock_code, query_date, type_='c'):
     """
     给定股票代码、期末日期、数据类型，返回股东数据
 
@@ -366,23 +391,27 @@ def fetch_top10_stockholder(stock_code, query_date, type_ = 'c'):
     8      深圳市实验学校  0.63%     157.80        新进
     9       广东证券公司  0.58%     145.12        新进
     """
-    assert type_ in ('c','t')
+    assert type_ in ('c', 't')
     query_date_str = pd.Timestamp(query_date).strftime('%Y-%m-%d')
-    url_fmt = 'http://quotes.money.163.com/service/{}.html?{}date={}%2C{}&symbol={}' 
+    url_fmt = 'http://quotes.money.163.com/service/{}.html?{}date={}%2C{}&symbol={}#01d02'
     query_type = 'gdfx'
     prefix = 'lt' if type_ == 'c' else ''
-    target_num = 1 if type_ == 't' else 0
-    periods = _stockholder_periods(stock_code, query_type, target_num)
+    periods = fetch_report_periods(stock_code, type_)
     if query_date_str not in periods.keys():
-        raise NoWebData('不存在报告期为："{}"的股东数据'.format(query_date_str))
+        raise NoWebData('不存在股票{}报告期为："{}"的股东数据'.format(
+            stock_code, query_date_str))
     from_date_str = periods[query_date_str].split(',')[1]
     url = url_fmt.format(query_type, prefix,
-                         query_date_str, from_date_str, 
+                         query_date_str, from_date_str,
                          stock_code)
-    df = pd.read_html(url, encoding='utf-8', header=0, skiprows=range(1))[0]
+    # df = pd.read_html(url, encoding='utf-8', header=0, skiprows=range(1))[0]
+    attrs = {'class': 'table_bg001 border_box limit_sale'}
+    # 必须使用html5lib解析
+    df = pd.read_html(url, encoding='utf-8', attrs=attrs, flavor='html5lib')[0]
     return df
 
 
+@friendly_download()
 def fetch_jjcg(stock_code, query_date):
     """
     给定股票代码、期末日期，返回基金持股数据
@@ -406,23 +435,24 @@ def fetch_jjcg(stock_code, query_date):
     Example
     -------
     >>> fetch_jjcg('000001','2004-09-30')
-         基金简称  持仓市值(万元)  持仓股数(万股) 与上期持仓股数变化(万股) 占基金净值比例 占流通股比例
-0  融通深证100指数A      3361    390.78       增仓87.12   4.81%  0.28%
-1  博时沪深300指数A      5270    612.78       增仓44.67   1.56%  0.43%
-2        基金普丰     11840   1392.89      减仓800.00   4.32%  0.99%
-3  华宝兴业宝康配置混合         0      0.00            退出       0      0
+            基金简称  持仓市值(万元)  持仓股数(万股) 与上期持仓股数变化(万股) 占基金净值比例 占流通股比例
+    0  融通深证100指数A      3361    390.78       增仓87.12   4.81%  0.28%
+    1  博时沪深300指数A      5270    612.78       增仓44.67   1.56%  0.43%
+    2        基金普丰     11840   1392.89      减仓800.00   4.32%  0.99%
+    3  华宝兴业宝康配置混合         0      0.00            退出       0      0
 
     """
     query_date_str = pd.Timestamp(query_date).strftime('%Y-%m-%d')
-    url_fmt = 'http://quotes.money.163.com/service/{}.html?{}date={}%2C{}&symbol={}' 
+    url_fmt = 'http://quotes.money.163.com/service/{}.html?{}date={}%2C{}&symbol={}'
     query_type = 'jjcg'
     prefix = ''
-    periods = _stockholder_periods(stock_code, query_type)
+    periods = fetch_report_periods(stock_code, query_type)
     if query_date_str not in periods.keys():
-        raise NoWebData('不存在报告期为："{}"的股东数据'.format(query_date_str))
+        raise NoWebData('不存在股票{}报告期为："{}"的基金持股数据'.format(
+            stock_code, query_date_str))
     from_date_str = periods[query_date_str].split(',')[1]
     url = url_fmt.format(query_type, prefix,
-                         query_date_str, from_date_str, 
+                         query_date_str, from_date_str,
                          stock_code)
     response = get_page_response(url)
     table = response.json()
@@ -456,6 +486,8 @@ def fetch_margin_data(query_date):
     5  300253   986704177   993525871   923098
     """
     query_date = pd.Timestamp(query_date)
+    if query_date.date() >= pd.Timestamp('today').date():
+        raise NoWebData('无法获取当天的融资融券数据')
     if query_date.date() < MARGIN_START:
         raise NoDataBefore('融资融券开始于{}，此前不存在数据。'.format(MARGIN_START))
     url_fmt = "http://quotes.money.163.com/data/margintrade,{}.html"
@@ -463,5 +495,5 @@ def fetch_margin_data(query_date):
     url = url_fmt.format(date_str)
     df = pd.read_html(url)[2].iloc[:, _WY_MARGIN_DATA_USE_COLS]
     df.columns = _WY_MARGIN_DATA_COL_NAMES
-
+    df.insert(1, '日期', query_date.date())
     return df

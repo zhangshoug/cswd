@@ -3,31 +3,21 @@
 
 """
 import re
-import pandas as pd
-from bs4 import BeautifulSoup
-import requests
 from datetime import date
+from urllib.error import HTTPError
+
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+
+from ..common.constants import QUOTE_COLS
+from ..common.utils import ensure_list
 from .base import friendly_download, get_page_response
+from .exceptions import NoWebData, FrequentAccess
 
 QUOTE_PATTERN = re.compile('"(.*)"')
 NEWS_PATTERN = re.compile(r'\W+')
 
-# 删除尾部列
-# 合并日期与时间列，生成时间列
-QUOTE_COLS = ['short_name', 'open','prev_close','close','high','low',
-              'bid_buy','bid_sell','volume','amount',
-              'buy_volume_1','buy_price_1',
-              'buy_volume_2','buy_price_2',
-              'buy_volume_3','buy_price_3',
-              'buy_volume_4','buy_price_4',
-              'buy_volume_5','buy_price_5',
-              'sell_volume_1','sell_price_1',
-              'sell_volume_2','sell_price_2',
-              'sell_volume_3','sell_price_3',
-              'sell_volume_4','sell_price_4',              
-              'sell_volume_5','sell_price_5',
-              'date','time'
-              ]
 
 @friendly_download(10, 10, 10)
 def fetch_company_info(stock_code):
@@ -37,12 +27,14 @@ def fetch_company_info(stock_code):
     df = pd.read_html(url, attrs={'id': 'comInfo1'})[0]
     return df
 
+
 def fetch_issue_new_stock_info(stock_code):
     """获取发行新股信息"""
     url_fmt = 'http://vip.stock.finance.sina.com.cn/corp/go.php/vISSUE_NewStock/stockid/{}.phtml'
     url = url_fmt.format(stock_code)
     df = pd.read_html(url, attrs={'id': 'comInfo1'})[0]
     return df
+
 
 def _add_prefix(stock_code):
     pre = stock_code[0]
@@ -51,21 +43,42 @@ def _add_prefix(stock_code):
     else:
         return 'sz{}'.format(stock_code)
 
+
 def _to_dataframe(content, p_codes):
     """解析网页数据，返回DataFrame对象"""
     res = [x.split(',') for x in re.findall(QUOTE_PATTERN, content)]
-    df = pd.DataFrame(res).iloc[:,:32]
-    df.columns = QUOTE_COLS
-    # 删除无效行，去除尾部列
-    df.insert(0,'code', p_codes)
-    df.dropna(inplace = True)
-    ds = df.pop('date')
-    ts = df.pop('time')
-    df['datetime'] = pd.to_datetime(ds.values + ' ' + ts.values)
+    df = pd.DataFrame(res).iloc[:, :32]
+    df.columns = QUOTE_COLS[1:]
+    df.insert(0, '股票代码', p_codes)
+    # df['股票代码'] = p_codes
+    df.dropna(inplace=True)
     return df
 
-def fetch_quotes(*stock_codes):
-    """获取当前股票列表的分时报价"""
+
+def fetch_quotes(stock_codes):
+    """
+    获取股票列表的分时报价
+
+    Parameters
+    ----------
+    stock_codes : list
+        股票代码列表
+
+    Returns
+    -------
+    res : DataFrame
+        行数 = len(stock_codes)   
+        33列   
+
+    Example
+    -------
+    >>> df = fetch_quotes(['000001','000002'])
+    >>> df.iloc[:,:8] 
+        股票代码  股票简称      开盘     前收盘      现价      最高      最低     竞买价
+    0  000001  平安银行  11.040  11.050  10.900  11.050  10.880  10.900
+    1  000002  万 科Ａ  33.700  34.160  33.290  33.990  33.170  33.290
+    """
+    stock_codes = ensure_list(stock_codes)
     num = len(stock_codes)
     length = 800
     times = int(num / length) + 1
@@ -76,7 +89,7 @@ def fetch_quotes(*stock_codes):
         url = url_fmt.format(','.join(map(_add_prefix, p_codes)))
         content = get_page_response(url).text
         dfs.append(_to_dataframe(content, p_codes))
-    return pd.concat(dfs).sort_values('code')
+    return pd.concat(dfs).sort_values('股票代码')
 
 
 def fetch_globalnews():
@@ -91,7 +104,58 @@ def fetch_globalnews():
     # 标题
     titles = [p.string for p in soup.find_all("p", class_="bd_i_txt_c")]
     # 类别
-    categories = [re.sub(NEWS_PATTERN, '', p.string) for p in soup.find_all("p", class_="bd_i_tags")]
+    categories = [re.sub(NEWS_PATTERN, '', p.string)
+                  for p in soup.find_all("p", class_="bd_i_tags")]
     # 编码bd_i bd_i_og clearfix
-    data_mid = pd.to_datetime(['{} {}'.format(str(today), t) for t in stamps])
+    data_mid = ['{} {}'.format(str(today), t) for t in stamps]
     return stamps, titles, categories, data_mid
+
+
+@friendly_download(10, 10, 2)
+def fetch_cjmx(stock_code, date_):
+    """
+    下载指定股票代码所在日期成交明细
+
+    Parameters
+    ----------
+    stock_code : str
+        股票代码(6位数字代码)
+    date_ : 类似日期对象
+        代表有效日期字符串或者日期对象
+
+    Returns
+    -------
+    res : DataFrame
+
+    Exception
+    ---------
+        当不存在数据时，触发NoWebData异常
+        当频繁访问时，系统会在一段时间内阻止访问，触发FrequentAccess异常
+
+    Example
+    -------
+    >>> df = fetch_cjmx('300002','2016-6-1')
+    >>> df.head() 
+        成交时间   成交价  价格变动  成交量(手)   成交额(元)  性质
+    0  15:00:03  8.69   NaN    1901  1652438  卖盘
+    1  14:57:03  8.69 -0.01      10     8690  卖盘
+    2  14:56:57  8.70   NaN     102    88740  买盘
+    3  14:56:51  8.70   NaN      15    13049  买盘
+    4  14:56:48  8.70  0.01       2     1739  买盘
+    """
+    url_fmt = 'http://market.finance.sina.com.cn/downxls.php?date={date_str}&symbol={code_str}'
+    date_str = pd.Timestamp(date_).strftime(r'%Y-%m-%d')
+    code_str = _add_prefix(stock_code)
+    url = url_fmt.format(date_str=date_str, code_str=code_str)
+    try:
+        df = pd.read_table(url, encoding='gb18030', na_values=['--'])
+        # 如果只有一行，证明当天停牌，返回None
+        if df.shape[1] == 1:
+            return None
+        else:
+            return df
+    except HTTPError:
+        raise FrequentAccess('频繁访问新浪网，系统暂停响应')
+    else:
+        raise NoWebData(
+            '无法在新浪网获取成交明细数据。股票：{}，日期：{}'.format(code_str, date_str))

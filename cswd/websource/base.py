@@ -5,11 +5,11 @@ import numpy as np
 from logbook import Logger
 
 from .exceptions import ConnectFailed, ThreeTryFailed
-from .utils import get_server_name
+from ..common.utils import get_server_name
 
 # 可能会遇到服务器定期重启，导致网络中断。休眠时长应大于重启完成时间
 MAX_SLEEP = 2
-logger = Logger(__name__)
+logger = Logger('休眠')
 
 
 class DownloadRecord(object):
@@ -26,14 +26,14 @@ def _get(url, params, timeout):
             if r.status_code == requests.codes.ok:
                 return r
         except requests.exceptions.ConnectionError:
-            logger.info('第{}次尝试。无法联通服务器：{}'.format(
+            logger.info('第{}次尝试。无法连接服务器：{}'.format(
             	i + 1, get_server_name(url)))
             time.sleep(MAX_SLEEP)
             continue
         except Exception as e:
             logger.info('第{}次尝试。错误：{}'.format(i + 1, e.args))
         time.sleep(0.1)
-    raise ConnectFailed('三次尝试均失败。服务器：{}'.format(get_server_name(url)))
+    raise ConnectFailed('三次尝试失败。服务器：{}'.format(get_server_name(url)))
 
 
 def _post(url, params, timeout):
@@ -43,7 +43,7 @@ def _post(url, params, timeout):
             if r.status_code == requests.codes.ok:
                 return r
         except requests.exceptions.ConnectionError:
-            logger.info('第{}次尝试。无法联通服务器：{}'.format(
+            logger.info('第{}次尝试。无法连接服务器：{}'.format(
             	i + 1, get_server_name(url)))
             time.sleep(MAX_SLEEP)
             continue
@@ -60,16 +60,16 @@ def get_page_response(url, method='get', params=None, timeout=(6, 3)):
         return _post(url, params, timeout)
 
 
-def friendly_download(times, duration=None, max_sleep=1):
+def friendly_download(times=20, duration=None, max_sleep=1):
 	"""
 	下载函数装饰器
 
 	Parameters
-	___________
+    ----------
 	times： int
-		每调用`times`次休眠一次
+		每`times`次调用休眠一次
 	duration：int
-		每运行`duration`（秒）时长休眠一次
+		运行`duration`（秒）休眠一次
 	max_sleep：int
 		允许最长休眠时间（秒）
 
@@ -82,7 +82,7 @@ def friendly_download(times, duration=None, max_sleep=1):
 
 		def sleep():
 			t = np.random.randint(1, max_sleep * 100) / 100
-			logger.info('调用函数"{}"太频繁，休眠{}秒'.format(key, t))
+			logger.info('每调用函数"{}"{}次，休眠{}秒'.format(key, times, t))
 			time.sleep(t)
 
 		@wraps(func)
@@ -103,28 +103,3 @@ def friendly_download(times, duration=None, max_sleep=1):
 			return func(*args, **kwargs)
 		return wrapper
 	return decorator
-
-
-def average(a, b):
-    """
-    Given two numbers a and b, return their average value.
-
-    Parameters
-    ----------
-    a : number
-        A number
-    b : number
-        Another number
-
-    Returns
-    -------
-    res : number
-        The average of a and b, computed using 0.5*(a + b)
-
-    Example
-    -------
-    >>> average(5, 10)
-    7.5
-
-    """
-    return (a + b) * 0.5

@@ -1,91 +1,79 @@
 """
-初始化数据库脚本
+初始化数据
+
+股票相关：
+    首先顺序执行：
+        1. 创建表
+        2. 初始化所有股票代码
+        3. 股票发行数据
+        4. 交易日历
+    随后执行：
+        . 股票分类信息（行业、概念、地域）
+        . 股东
+        . 股票概况
+        . 融资融券
+        . 股票日线数据
+        . 股票分时交易数据（务必在日线数据完成后才进行）
+        . 财务报告及财务指标
+指数：
+    顺序执行：
+        1. 指数信息
+        2. 指数日线
+
+其他：
+    1. 国库券资金成本
+    2. 业绩预告
 """
+import sys
+import logbook
 
-def refresh_stock_base_data():
-    from cswd.sqldata.stock_code import StockCodeData
-    from cswd.sqldata.trading_date import TradingDateData
-    from cswd.sqldata.stock_region import RegionData, StockRegionData
-    from cswd.sqldata.stock_concept import ConceptData, StockConceptData
-    from cswd.sqldata.stock_industry import IndustryData, StockIndustryData
-
-    StockCodeData.refresh()
-    StockCodeData.refresh_time_to_market()
-    TradingDateData.refresh()
-
-    RegionData.refresh()
-    StockRegionData.refresh()
-
-    ConceptData.refresh()
-    StockConceptData.refresh()
-
-    IndustryData.refresh()
-    StockIndustryData.refresh()
+logbook.set_datetime_format('local')
+logbook.StreamHandler(sys.stdout).push_application()
 
 
-def refresh_trading_data():
-    from cswd.sqldata.stock_daily import StockDailyData
-    from cswd.sqldata.margindata import MarginData
-    from cswd.sqldata.gpjk import SpecialTreatmentData, ShortNameData
-    StockDailyData.refresh(status=None)
-    # 刷新日线数据后才可以修复
-    SpecialTreatmentData.refresh(status=None)
-    ShortNameData.refresh(status=None)
-    ShortNameData.auto_repair()
-    MarginData.refresh()
+from cswd.tasks.tables import creat_tables
+from cswd.tasks.trading_calendar import flush_trading_calendar
 
-# 基准收益数据
-def refresh_index_data():
-    from cswd.sqldata.stock_index_code import StockIndexCodeData
-    from cswd.sqldata.stock_index_daily import StockIndexDailyData
-    from cswd.sqldata.treasury import TreasuryData
-    StockIndexCodeData.refresh()
-    StockIndexDailyData.refresh()
-    TreasuryData.refresh()
+from cswd.tasks.stock_codes import flush_stock_codes
+from cswd.tasks.stock_issue import flush_stock_issue
+from cswd.tasks.stock_category import flush_stock_category
+from cswd.tasks.stock_shareholders import flush_shareholder
+from cswd.tasks.stock_gpgk import flush_gpgk
+from cswd.tasks.stock_daily import flush_stockdaily
+from cswd.tasks.stock_dealdetail import flush_dealdetail
+from cswd.tasks.financial_reports import flush_reports
+from cswd.tasks.adjustment import flush_adjustment
+from cswd.tasks.stock_forecast import flush_forecast
+from cswd.tasks.margin_data import flush_margin
 
-# 财务报告及指标
-def refresh_finance_data():
-    from cswd.sqldata.finance_report import FinanceReportData
-    from cswd.sqldata.adjustment import AdjustmentData
-    from cswd.sqldata.performance_notice import PerformanceNoticeData
-    from cswd.sqldata.stock_holder import StockHolderData
+from cswd.tasks.treasury import flush_treasury
 
-    AdjustmentData.refresh(status=None)
-    FinanceReportData.refresh(status=None)
-    StockHolderData.refresh(status=None)
-    PerformanceNoticeData.refresh(status=None)
+# 指数
+from cswd.tasks.index_info import flush_index_info
+from cswd.tasks.index_daily import flush_index_daily
 
 
 def main():
-    import logbook
-    import sys
-    import os
-    import sys
-    from cswd.constants import DB_DIR_NAME, DB_NAME
-    from cswd.sqldata.base import _check_db_schema, db_path
-    from cswd.utils import data_root
+    creat_tables()
+    
+    flush_stock_codes()
+    flush_stock_issue(True)
+    flush_trading_calendar()
+    flush_stock_category()
+    flush_shareholder(init=True)
+    flush_gpgk(init=True)
+    flush_stockdaily(init=True)
+    flush_dealdetail(init=True)
+    flush_reports(None, True)
+    flush_adjustment(init=True)
+    flush_forecast()
+    flush_margin(True)
 
-    logbook.set_datetime_format('local')
-    logbook.StreamHandler(sys.stdout).push_application()
+    flush_treasury()
+    # 股票指数相关
+    flush_index_info()
+    flush_index_daily()
 
-    # 删除数据文件
-    db_dir = data_root(DB_DIR_NAME)
-    db = os.path.join(db_dir, DB_NAME)
-    confirm = input('初始化数据库将删除现有所有数据！！！yes/no：')
-    if confirm.strip().upper() == 'YES':
-        try:
-            os.remove(db)
-        except FileNotFoundError:
-            pass
-    else:
-        sys.exit()
 
-    _check_db_schema(True)
-
-    log = logbook.Logger('初始化数据表')
-    log.info('开始执行......')
-
-    refresh_stock_base_data()
-    refresh_trading_data()
-    refresh_index_data()
-    refresh_finance_data()
+if __name__ == '__main__':
+    main()

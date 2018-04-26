@@ -1,16 +1,10 @@
-__version__ = '1.2.0'
+__version__ = '1.3.0'
 
-from .constants import MARKET_START, ROOT_DIR_NAME, DB_DIR_NAME, DB_NAME
-from .utils import *
+import sys
+import logbook
 
-from .websource import *
-from .dataproxy import *
-from .sqldata import *
+# 设置显示日志
+logbook.set_datetime_format('local')
+logbook.StreamHandler(sys.stdout).push_application()
 
-
-__all__ = [
-    'MARKET_START',
-    'ROOT_DIR_NAME',
-    'DB_DIR_NAME',
-    'DB_NAME',
-]
+from .sql import *

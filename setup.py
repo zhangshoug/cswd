@@ -1,82 +1,42 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
-import os
-import sys
-from fnmatch import fnmatch
-
-
-def ispackage(x):
-    return os.path.isdir(x) and os.path.exists(os.path.join(x, '__init__.py'))
-
-
-def istestdir(x):
-    return os.path.isdir(x) and not os.path.exists(os.path.join(x, '__init__.py'))
-
-
-def find_packages(where='cswd', exclude=('ez_setup', 'distribute_setup'),
-                  predicate=ispackage):
-    if sys.version_info[0] == 3:
-        exclude += ('*py2only*', '*__pycache__*')
-
-    func = lambda x: predicate(x) and not any(fnmatch(x, exc)
-                                              for exc in exclude)
-    return list(filter(func, [x[0] for x in os.walk(where)]))
-
-
-packages = find_packages()
-testdirs = find_packages(predicate=(lambda x: istestdir(x) and
-                                    os.path.basename(x) == 'tests'))
-
-
-def find_data_files(exts, where='cswd'):
-    exts = tuple(exts)
-    for root, dirs, files in os.walk(where):
-        for f in files:
-            if any(fnmatch(f, pat) for pat in exts):
-                yield os.path.join(root, f)
-
-
-exts = ('*.csv',)
-package_data = [os.path.join(x.replace('cswd' + os.sep, ''), '*.py')
-                for x in testdirs]
-package_data += [x.replace('cswd' + os.sep, '')
-                 for x in find_data_files(exts)]
 
 def read(filename):
     with open(filename, 'r') as f:
         return f.read()
 
+
 def read_reqs(filename):
     return read(filename).strip().splitlines()
+
 
 def install_requires():
     return read_reqs('etc/requirements.txt')
 
+
 setup(
     name="cswd",
-    version="1.2.0",
-    packages=find_packages(),
+    version="1.3.0",
+    packages=find_packages(exclude=['tasks']),
     install_requires=install_requires(),
-    python_requires='>=3.6',
+    # python_requires='>=3.6',
     include_package_data=True,
     #zip_safe=False,
     package_data={
-        'cswd': package_data,
+        # If any package contains *.txt or *.rst files, include them:
+        '': ['*.csv'],
+        # And include any *.msg files found in the 'hello' package, too:
+        # 'hello': ['*.msg'],
     },
     scripts=['scripts/init_db_data.py',
-             'scripts/daily_tasks.py',
-             'scripts/am_9_margindata.py',
-             'scripts/minutely_tasks.py',
-             'scripts/per_minutely_tasks.py',
-             'scripts/weekly_tasks.py'],
+             'scripts/create_tables.py',
+             'scripts/after_trading.py',
+             ],
     entry_points={
         'console_scripts': [
-            'init_stock_data = init_db_data:main',
-            'refresh_minutely_trading_data = minutely_tasks:main',
-            'refresh_daily_stock_data = daily_tasks:main',
-            'weekly_check_stock_data = weekly_tasks:main',
-            'refresh_daily_margin_data = am_9_margindata:main',
-            'minutely_feed_news = per_minutely_tasks:fresh_globalnews',
+            'create-db-tables = create_tables:main',
+            'init-stock-data = init_db_data:main',
+            'daily-refresh = after_trading:main',
         ],
     },
     author="LDF",

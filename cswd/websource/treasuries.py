@@ -9,7 +9,7 @@ import os
 import re
 
 from ..load import load_csv
-from ..utils import sanitize_dates
+from ..common.utils import sanitize_dates
 
 from .base import get_page_response
 
