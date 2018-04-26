@@ -42,19 +42,19 @@ class TestTHS(unittest.TestCase):
         self.assertAlmostEqual(res['发行中签率'], 0.0081)
         self.assertTrue(res['上市日期'].date() == date(2009, 10, 30))
 
-    def test_get_category_list(self):
-        """测试获取分类列表"""
-        df = self.f10.get_category_dataframe()
-        self.assertEqual(len(df['类别'].unique()), 4)
-        self.assertTrue(df.shape[0] >= 100)
-        self.assertTrue(df.shape[1] == 4)
+    # def test_get_category_list(self):
+    #     """测试获取分类列表"""
+    #     df = self.f10.get_category_dataframe()
+    #     self.assertEqual(len(df['类别'].unique()), 4)
+    #     self.assertTrue(df.shape[0] >= 100)
+    #     self.assertTrue(df.shape[1] == 4)
 
-    def test_get_category_stock_list(self):
-        """测试获取分类项下股票代码表(耗时)"""
-        df = self.f10.get_all_category_stock_list()
-        self.assertTrue(len(df.code.unique()) > 200)
-        self.assertTrue(df.shape[1] == 2)
-        self.assertTrue(df.shape[0] >= 10000)
+    # def test_get_category_stock_list(self):
+    #     """测试获取分类项下股票代码表(耗时)"""
+    #     df = self.f10.get_all_category_stock_list()
+    #     self.assertTrue(len(df.code.unique()) > 200)
+    #     self.assertTrue(df.shape[1] == 2)
+    #     self.assertTrue(df.shape[0] >= 10000)
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
