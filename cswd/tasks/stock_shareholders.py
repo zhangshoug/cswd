@@ -133,7 +133,7 @@ def _get_report_periods(sess, code, type_):
 def flush_main(sess, code):
     dates = _get_report_periods(sess, code, ShareholderType.main)
     if len(dates) == 0:
-        logger.info('{}无需刷新。股票：{}'.format('主要流通股东', code))
+        logger.info('{}无需刷新。股票：{}'.format('主要股东', code))
     for d in dates:
         if existed(sess, code, d, ShareholderType.main):
             logger.info('主要股东，股票：{}，日期：{}， 已经存在'.format(code, d.date()))
@@ -152,7 +152,7 @@ def flush_main(sess, code):
 def flush_circulating(sess, code):
     dates = _get_report_periods(sess, code, ShareholderType.circulating)
     if len(dates) == 0:
-        logger.info('{}无需刷新。股票：{}'.format('十大流通股东', code))
+        logger.info('{}无需刷新。股票：{}'.format('十大股东', code))
     for d in dates:
         if existed(sess, code, d, ShareholderType.circulating):
             logger.info('十大流通股东，股票：{}，日期：{}， 已经存在'.format(code, d.date()))
