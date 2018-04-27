@@ -331,7 +331,7 @@ def fetch_industry(date_str, department):
         df.columns = ['industry_id', 'name']
         return df
     except HTTPError:
-        msg_fmt = '或者当前日期的数据尚未发布，或者日期'{}'并非交易日'
+        msg_fmt = "或者当前日期的数据尚未发布，或者日期'{}'并非交易日"
         raise ValueError(msg_fmt.format(date_str))
 
 
