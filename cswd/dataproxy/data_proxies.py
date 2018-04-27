@@ -2,7 +2,6 @@
 数据代理
 """
 from ..websource.ths import THSF10
-from ..websource.fenghuang import fetch_gpgk
 from ..websource.treasuries import fetch_treasury_data_from, read_local_data
 
 from ..websource.wy import (fetch_financial_indicator,
@@ -35,7 +34,6 @@ trading_days_reader = DataProxy(get_trading_dates)
 # 基础信息
 
 # -> 股票
-gpjk_reader = DataProxy(fetch_gpgk)  # 股票简况
 juchao_info_reader = DataProxy(fetch_company_brief_info)
 wy_info_reader = DataProxy(fetch_company_info)
 stock_code_reader = DataProxy(get_stock_codes)
@@ -69,7 +67,6 @@ __all__ = [
     'is_trading_reader',
     'non_trading_days_reader',
     'trading_days_reader',
-    'gpjk_reader',
     'juchao_info_reader',
     'wy_info_reader',
     'stock_code_reader',

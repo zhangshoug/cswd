@@ -1,7 +1,5 @@
 """
 刷新股票概况（简称、特殊处理）
-
-凤凰网数据不太稳定，不使用本地缓存对象
 """
 import logbook
 import time
@@ -32,18 +30,37 @@ def not_yet_updated(codes, class_):
         updated_codes = set([x[0] for x in query.all()])
         return set(codes).difference(updated_codes)
 
-def _gen_sn(code, df):
+
+def get_start_date(code, class_):
+    """类所含股票代码最后日期"""
+    assert class_ in (ShortName, SpecialTreatment)
+    first_date = pd.Timestamp('1990-1-1').date()
+    with session_scope() as sess:
+        l_d = sess.query(
+            func.max(class_.date)
+        ).filter(
+            class_.code == code
+        ).scalar()
+        if l_d is None:
+            return first_date
+        else:
+            return l_d + pd.Timedelta(days=1)
+
+
+def _gen_sn(code, df, start):
     """生成股票简称对象列表"""
     objs = []
     if df is None:
         return []
     rows = len(df)
     for i in range(rows):
-        sn = ShortName(code=code,
-                       date=df.index[i],
-                       short_name=df['name'][i],
-                       memo=df['memo'][i])
-        objs.append(sn)
+        d = df.index[i].date()
+        if d >= start:
+            sn = ShortName(code=code,
+                           date=d,
+                           short_name=df['name'][i],
+                           memo=df['memo'][i])
+            objs.append(sn)
     return objs
 
 
@@ -54,43 +71,43 @@ def _to_enum(df, i):
     return SpecialTreatmentType[ST_MAPS[o]]
 
 
-def _gen_st(code, df):
+def _gen_st(code, df, start):
     """生成特殊处理对象列表"""
     objs = []
     if df is None:
         return []
     rows = len(df)
     for i in range(rows):
-        t = _to_enum(df, i)
-        sp = SpecialTreatment(code=code,
-                              date=df.index[i],
-                              treatment=t,
-                              memo=df['memo'][i])
-        objs.append(sp)
+        d = df.index[i].date()
+        if d >= start:
+            t = _to_enum(df, i)
+            sp = SpecialTreatment(code=code,
+                                  date=d,
+                                  treatment=t,
+                                  memo=df['memo'][i])
+            objs.append(sp)
     return objs
 
 
-def _update_st(sess, code, to_update):
-    """更新股票特殊处理"""
+def _insert_st(sess, code, to_update):
+    """插入股票特殊处理记录"""
     if len(to_update) == 0:
         return
-    specialtreatments = sess.query(SpecialTreatment).filter(SpecialTreatment.code == code)
-    specialtreatments.delete()
     sess.add_all(to_update)
+    sess.commit()
     num = len(to_update)
-    logger.info('更新特别处理，代码：{}，共{}条记录'.format(
+    logger.info('添加特别处理，代码：{}，共{}条记录'.format(
         code, str(num).zfill(3)))
 
 
-def _update_sn(sess, code, to_update):
-    """更新股票简称"""
+def _insert_sn(sess, code, to_update):
+    """插入股票简称记录"""
     if len(to_update) == 0:
         return
-    shortNames = sess.query(ShortName).filter(ShortName.code == code)
-    shortNames.delete()
     sess.add_all(to_update)
+    sess.commit()
     num = len(to_update)
-    logger.info('更新股票简称，代码：{}，共{}条记录'.format(
+    logger.info('添加股票简称，代码：{}，共{}条记录'.format(
         code, str(num).zfill(3)))
 
 
@@ -101,14 +118,15 @@ def failed_one(code):
     except ValueError:
         # 无法获取数据，失败
         return True
-    sns = _gen_sn(code, p2)
-    sts = _gen_st(code, p3)
+    sn_start = get_start_date(code, ShortName)
+    st_start = get_start_date(code, SpecialTreatment)
+    sns = _gen_sn(code, p2, sn_start)
+    sts = _gen_st(code, p3, st_start)
     if len(sns) + len(sts) == 0:
         return True
     with session_scope() as sess:
-        _update_sn(sess, code, sns)
-        _update_st(sess, code, sts)
-        sess.commit()
+        _insert_sn(sess, code, sns)
+        _insert_st(sess, code, sts)
     return False
 
 
