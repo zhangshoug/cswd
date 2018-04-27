@@ -18,7 +18,7 @@ logger = logbook.Logger('股票概况')
 
 
 def not_yet_updated(codes, class_):
-    """codes中今天尚未更新的代码"""
+    """指定类在codes中今天尚未更新的代码"""
     assert class_ in (ShortName, SpecialTreatment)
     today = pd.Timestamp('today').date()
     with session_scope() as sess:
@@ -122,8 +122,6 @@ def failed_one(code):
     st_start = get_start_date(code, SpecialTreatment)
     sns = _gen_sn(code, p2, sn_start)
     sts = _gen_st(code, p3, st_start)
-    if len(sns) + len(sts) == 0:
-        return True
     with session_scope() as sess:
         _insert_sn(sess, code, sns)
         _insert_st(sess, code, sts)
@@ -159,10 +157,11 @@ def flush_gpgk(codes=None, init=False):
         codes = ensure_list(codes)
     to_do = get_to_do(codes)
     for i in range(1, 4):
+        logger.info('股票代码数量：{}'.format(len(to_do)))
         to_do = batch_flush(to_do)
         to_do = get_to_do(to_do)
         if len(to_do) == 0:
             break
         time.sleep(1)
         if i > 1:
-            logger.info('第{}次尝试，其中代码：{} 失败'.format(i, to_do))
+            logger.info('第{}次尝试，其中{}个股票代码失败'.format(i, len(to_do)))
