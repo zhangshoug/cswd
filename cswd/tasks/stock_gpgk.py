@@ -156,7 +156,7 @@ def flush_gpgk(codes=None, init=False):
     else:
         codes = ensure_list(codes)
     to_do = get_to_do(codes)
-    for i in range(1, 4):
+    for i in range(1, 10):
         logger.info('股票代码数量：{}'.format(len(to_do)))
         to_do = batch_flush(to_do)
         to_do = get_to_do(to_do)
