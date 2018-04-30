@@ -7,7 +7,7 @@
     暂停上市股票列表           fetch_suspend_stocks
     终止上市股票              fetch_delisting_stocks
     公司简要信息              fetch_company_brief_info
-    股票分配记录              fetch_adjustment  
+    股票分配记录              fetch_adjustment
     指数基本信息              fetch_index_info
     公司公告                  fetch_announcement_summary
     行业市盈率                fetch_industry_stocks
@@ -20,15 +20,17 @@ from io import BytesIO, StringIO
 import os
 import re
 import pandas as pd
+import logbook
 from itertools import product
 from urllib.error import HTTPError
 from urllib.parse import quote
-
+import requests
+import time
 from ..common.utils import data_root
-
-from .base import get_page_response
+from .base import friendly_download, get_page_response
 from .exceptions import ThreeTryFailed
 
+logger = logbook.Logger('巨潮网')
 
 _ACCEPTABLE_ITEM = frozenset(
     [
@@ -343,7 +345,7 @@ def _industry_stocks(industry_id, date_str):
     else:
         # 国证行业分类
         category = '008100'
-    params = {'query.plate': quote('深沪全市场'),
+    params = {'query.plate': quote('深沪全板块'),
               'query.industry': industry_id,
               'query.date': date_str,
               'query.category': category,
@@ -393,4 +395,60 @@ def fetch_industry_stocks(date_, department='cninfo'):
     res.columns = col_names
     res = res.loc[~res.code.isnull(), :]
     res.code = res.code.map(lambda x: str(int(x)).zfill(6))
+    return res
+
+
+def previous_report_date(date_):
+    date_ = pd.Timestamp(date_).date()
+    qe = pd.tseries.offsets.QuarterEnd(-1)
+    return qe.apply(date_).date()
+
+
+def _retry_one_page(url, data):
+    r = requests.post(url, data)
+    return r.json()['prbookinfos']
+
+
+def fetch_latest_prbookinfos(date_=pd.Timestamp('today')):
+    """
+    股票最新财务报告预约披露时间表
+
+    初步完成。但尚未完全测试。如二次以上完成，再合成应该没有问题。
+    """
+    url = 'http://three.cninfo.com.cn/new/information/getPrbookInfo'
+    cols = ['报告期', '首次预约', '第一次变更', '第二次变更', '第三次变更', '实际披露',
+            'orgId', '股票代码', '股票简称']
+    markets = ('szmb',  'szsme', 'szcn', 'shmb')
+    dfs = []
+    report_date = previous_report_date(date_).strftime(r'%Y-%m-%d')
+    for b, market in enumerate(markets):
+        pagenum = 1
+        total_page = 1
+        has_next_page = True
+        data = {'sectionTime': report_date,
+                'market': market,
+                'isDesc': False,
+                'pagenum': pagenum}
+        while has_next_page and (pagenum <= total_page):
+            logger.info('板块{}第{}页'.format(market, pagenum))
+            try:
+                r = get_page_response(url, 'post', data)
+                book = r.json()['prbookinfos']
+            except Exception:
+                logger.info('板块{}第{}页出现异常！！！'.format(market, pagenum))
+                logger.info('休眠3秒后再次尝试')
+                time.sleep(3)
+                book = _retry_one_page(url, data)
+            has_next_page = r.json()['hasNextPage']
+            total_page = int(r.json()['totalPages'])
+            df = pd.DataFrame.from_records(book)
+            dfs.append(df)
+            pagenum += 1
+            data.update(pagenum=pagenum)
+        if b < len(markets) - 1:
+            # 完成一个板块板块，休眠
+            logger.info('完成板块{}，休眠3秒'.format(market))
+            time.sleep(3)
+    res = pd.concat(dfs, ignore_index=True)
+    res.columns = cols
     return res
