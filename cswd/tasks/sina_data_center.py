@@ -77,7 +77,7 @@ class DataCenter(object):
         """
         fetch_func = TABLE_MAPS[self.name][1]
         if self.data is None or self.data.empty:
-            # 一旦超出实际数量，自动跳出循环
+            # 一旦超出实际数量，自动跳出循环(当前最多500页)
             kwargs.update(pages=1000)
             to_add = fetch_func(**kwargs)
             logger.info('表{}新增数据{}行'.format(self.name, to_add.shape[0]))

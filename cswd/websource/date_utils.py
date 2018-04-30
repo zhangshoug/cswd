@@ -10,10 +10,10 @@ from .wy import fetch_history
 from .sina import fetch_quotes
 
 
-def get_trading_dates(start, end, tz='utc'):
-    """期间所有交易日期（当前日期顺延一年后的所有工作日视同交易日)"""
+def get_trading_dates(start=None, end=None, tz='utc'):
+    """期间所有交易日期"""
     start, end = sanitize_dates(start, end)
-    df = fetch_history('000001', MARKET_START, None, True)
+    df = fetch_history('000001', MARKET_START, end, True)
     trading_dates = df.index.tz_localize(tz)
     today = pd.Timestamp('today').normalize().date()
     if end > today:

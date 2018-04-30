@@ -6,10 +6,11 @@ from cswd.websource.date_utils import (get_trading_dates, get_non_trading_days,
 
 
 class TestSina(unittest.TestCase):
+
     def test_get_trading_dates(self):
         trading_dates = get_trading_dates('1990-12-19', '2018-3-30')
         self.assertIs(type(trading_dates), pd.DatetimeIndex)
-        self.assertTrue(len(trading_dates) == 6689)
+        self.assertTrue(len(trading_dates) == 6672)
 
     def test_get_non_trading_days(self):
         non_trading_days = get_non_trading_days('1990-1-1', '2018-3-30')

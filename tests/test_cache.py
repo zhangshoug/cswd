@@ -7,7 +7,7 @@ import time
 from cswd.dataproxy.cache import DataProxy, last_modified_time
 from cswd.websource.wy import fetch_history
 from cswd.websource.fenghuang import fetch_gpgk
-from cswd.dataproxy.data_proxies import gpjk_reader
+
 
 def _make_time_str(add_seconds=1):
     time_ = (pd.Timestamp('now') + pd.Timedelta(seconds=add_seconds)).time()
