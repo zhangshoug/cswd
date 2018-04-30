@@ -17,7 +17,7 @@ def install_requires():
 setup(
     name="cswd",
     version="1.3.0",
-    packages=find_packages(exclude=['tasks']),
+    packages=find_packages(),
     install_requires=install_requires(),
     # python_requires='>=3.6',
     include_package_data=True,

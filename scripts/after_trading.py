@@ -17,7 +17,8 @@ from cswd.tasks.treasury import flush_treasury
 from cswd.tasks.index_daily import flush_index_daily
 from cswd.tasks.stock_daily import flush_stockdaily, append_last_daily
 from cswd.tasks.stock_dealdetail import flush_dealdetail
-
+# 新浪机构评级、业绩预测、业绩公告
+from cswd.tasks.sina_data_center import flush_sina_data
 
 def main():
     # today = pd.Timestamp('today').date()
@@ -31,6 +32,7 @@ def main():
     append_last_daily()
     flush_dealdetail()
 
+    flush_sina_data()
 
 if __name__ == '__main__':
     main()

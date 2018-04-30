@@ -52,6 +52,8 @@ from cswd.tasks.treasury import flush_treasury
 from cswd.tasks.index_info import flush_index_info
 from cswd.tasks.index_daily import flush_index_daily
 
+# 新浪机构评级、业绩预测、业绩公告
+from cswd.tasks.sina_data_center import flush_sina_data
 
 def main():
     creat_tables()
@@ -74,6 +76,7 @@ def main():
     flush_index_info()
     flush_index_daily()
 
+    flush_sina_data()
 
 if __name__ == '__main__':
     main()
