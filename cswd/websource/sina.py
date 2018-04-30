@@ -1,6 +1,8 @@
 """
 新浪网设置了访问频次限制。
 
+新浪有许多以列表形式提供的汇总列，每天访问也仅仅一次。
+
 """
 import re
 from datetime import date
@@ -17,6 +19,7 @@ from .exceptions import NoWebData, FrequentAccess
 
 QUOTE_PATTERN = re.compile('"(.*)"')
 NEWS_PATTERN = re.compile(r'\W+')
+DATA_BASE_URL = 'http://vip.stock.finance.sina.com.cn/q/go.php/'
 
 
 @friendly_download(10, 10, 10)
@@ -159,3 +162,254 @@ def fetch_cjmx(stock_code, date_):
     else:
         raise NoWebData(
             '无法在新浪网获取成交明细数据。股票：{}，日期：{}'.format(code_str, date_str))
+
+
+@friendly_download(10, 10, 1)
+def _common_fun(url, init=False, skiprows=1):
+    """处理新浪数据中心网页数据通用函数"""
+    dfs = []
+
+    def read_fun(x): return pd.read_html(
+        x, skiprows=skiprows, 
+        na_values=['--'],
+        flavor='html5lib', 
+        attrs={'class': 'list_table'})[0]
+    if init:
+        for i in range(1, 10000):
+            page_url = url + '?p={}'.format(i)
+            try:
+                df = read_fun(page_url)
+                dfs.append(df)
+            except ValueError:
+                break
+            except IndexError:
+                break                
+        return pd.concat(dfs, ignore_index=True)
+    else:
+        page_url = url + '?num=60'
+        return read_fun(page_url)
+
+
+def fetch_rating(init=False):
+    """
+    投资评级数据
+
+    参数
+    ----
+    init : bool
+        是否初始化提取，默认为假。
+        如初始化，则从第一页开始循环，一直到最后一页。
+        否则只取首页数据，即最新数据
+
+    返回
+    ----
+    res ： pd.DataFrame
+    """
+    # 名称中可能含有非法字符，重新定义列名称
+    cols = ['股票代码', '股票名称', '目标价', '最新评级', '评级机构',
+            '分析师', '行业', '评级日期']
+    url = DATA_BASE_URL + 'vIR_RatingNewest/index.phtml'
+    df = _common_fun(url, init)
+    df = df.iloc[:, :8]
+    df.columns = cols
+    df['股票代码'] = df['股票代码'].map(lambda x: str(x).zfill(6))
+    return df
+
+
+def fetch_organization_care(init=False, last=30):
+    """
+    机构关注度
+
+    参数
+    ----
+    init : bool
+        是否初始化提取，默认为假。
+        如初始化，则从第一页开始循环，一直到最后一页。
+        否则只取首页数据，即最新数据
+    last : int
+        统计近期多少天的数据。默认30
+        可选范围:[10,30,60]
+
+    返回
+    ----
+    res ： pd.DataFrame
+    """
+    accept = (10, 30, 60)
+    assert last in accept, 'last参数可选范围{}'.format(accept)
+    # 名称中可能含有非法字符，重新定义列名称
+    cols = ['股票代码', '股票名称', '关注度', '最新评级', '平均评级',
+            '买入数', '持有数', '中性数', '减持数', '卖出数', '行业']
+    url = DATA_BASE_URL + 'vIR_OrgCare/index.phtml?last={}'.format(last)
+    df = _common_fun(url, init)
+    df = df.iloc[:, :11]
+    df.columns = cols
+    df['股票代码'] = df['股票代码'].map(lambda x: str(x).zfill(6))
+    return df
+
+
+def fetch_industry_care(init=False, last=30):
+    """
+    行业关注度
+
+    参数
+    ----
+    init : bool
+        是否初始化提取，默认为真。
+        该参数只能为真，否认数据不完整。总共才2页。
+    last : int
+        统计近期多少天的数据。默认30
+        可选范围:[10,30,60]
+
+    返回
+    ----
+    res ： pd.DataFrame
+
+    备注
+    ----
+        选取   
+    """
+    accept = (10, 30, 60)
+    assert last in accept, 'last参数可选范围{}'.format(accept)
+    # 名称中可能含有非法字符，重新定义列名称
+    cols = ['行业名称', '关注度', '关注股票数', '买入评级数',
+            '持有评级数', '中性评级数', '减持评级数', '卖出评级数']
+    url = DATA_BASE_URL + 'vIR_IndustryCare/index.phtml?last={}'.format(last)
+    df = _common_fun(url, init)
+    df.columns = cols
+    return df
+
+
+def fetch_target_price(init=False):
+    """
+    主流股价预测数据
+
+    参数
+    ----
+    init : bool
+        是否初始化提取，默认为假。
+        如初始化，则从第一页开始循环，一直到最后一页。
+        否则只取首页数据，即最新数据
+
+    返回
+    ----
+    res ： pd.DataFrame
+
+    说明
+    ----
+        原始数据没有期间，用处不大
+    """
+    cols = ['股票代码', '股票名称', '预期下限', '预期上限']
+    url = DATA_BASE_URL + 'vIR_TargetPrice/index.phtml'
+    df = _common_fun(url, init, 1)
+    df = df.iloc[:, [0, 1, 5, 6]]
+    df.columns = cols
+    df['股票代码'] = df['股票代码'].str.extract(r'(?P<digit>\d{6})', expand=False)
+    return df
+
+
+def fetch_performance_prediction(init=False):
+    """
+    业绩预告数据
+
+    参数
+    ----
+    init : bool
+        是否初始化提取，默认为假。
+        如初始化，则从第一页开始循环，一直到最后一页。
+        否则只取首页数据，即最新数据
+    
+    返回
+    ----
+    res ： pd.DataFrame
+    """
+    cols = ['股票代码', '股票名称', '类型', '公告日期', '报告期',
+            '摘要', '上年同期', '同比幅度']
+    url = DATA_BASE_URL + 'vFinanceAnalyze/kind/performance/index.phtml'
+    df = _common_fun(url, init, 1)
+    df = df.iloc[:, :8]
+    df.columns = cols
+    return df
+
+
+def fetch_eps_prediction(init=False):
+    """
+    EPS预测数据
+
+    参数
+    ----
+    init : bool
+        是否初始化提取，默认为假。
+        如初始化，则从第一页开始循环，一直到最后一页。
+        否则只取首页数据，即最新数据
+    
+    返回
+    ----
+    res ： pd.DataFrame
+    """
+    url = DATA_BASE_URL + 'vPerformancePrediction/kind/eps/index.phtml'
+    df = _common_fun(url, init, 0)
+    df['股票代码'] = df['股票代码'].str.extract(r'(?P<digit>\d{6})', expand=False)
+    return df.iloc[:, :9]
+
+
+def fetch_sales_prediction(init=False):
+    """
+    销售收入预测数据
+
+    参数
+    ----
+    init : bool
+        是否初始化提取，默认为假。
+        如初始化，则从第一页开始循环，一直到最后一页。
+        否则只取首页数据，即最新数据
+    
+    返回
+    ----
+    res ： pd.DataFrame
+    """
+    url = DATA_BASE_URL + 'vPerformancePrediction/kind/sales/index.phtml'
+    df = _common_fun(url, init, 0)
+    df['股票代码'] = df['股票代码'].str.extract(r'(?P<digit>\d{6})', expand=False)
+    return df.iloc[:, :9]
+
+
+def fetch_net_profit_prediction(init=False):
+    """
+    净利润预测数据
+
+    参数
+    ----
+    init : bool
+        是否初始化提取，默认为假。
+        如初始化，则从第一页开始循环，一直到最后一页。
+        否则只取首页数据，即最新数据
+    
+    返回
+    ----
+    res ： pd.DataFrame
+    """
+    url = DATA_BASE_URL + 'vPerformancePrediction/kind/np/index.phtml'
+    df = _common_fun(url, init, 0)
+    df['股票代码'] = df['股票代码'].str.extract(r'(?P<digit>\d{6})', expand=False)
+    return df.iloc[:, :9]
+
+
+def fetch_roc_prediction(init=False):
+    """
+    净资产收益率预测数据
+
+    参数
+    ----
+    init : bool
+        是否初始化提取，默认为假。
+        如初始化，则从第一页开始循环，一直到最后一页。
+        否则只取首页数据，即最新数据
+    
+    返回
+    ----
+    res ： pd.DataFrame   
+    """
+    url = DATA_BASE_URL + 'vPerformancePrediction/kind/roe/index.phtml'
+    df = _common_fun(url, init, 0)
+    df['股票代码'] = df['股票代码'].str.extract(r'(?P<digit>\d{6})', expand=False)
+    return df.iloc[:, :9]
