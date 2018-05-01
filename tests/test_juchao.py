@@ -2,6 +2,7 @@ import unittest
 import numpy as np
 import pandas as pd
 import requests
+from cswd.websource.exceptions import NoWebData, NoDataBefore
 from cswd.websource.juchao import (fetch_adjustment,
                                    fetch_prbookinfos,
                                    JUCHAO_MARKET_MAPS)
@@ -39,9 +40,17 @@ class TestJuChao(unittest.TestCase):
 
     def test_fetch_prbookinfos(self):
         """测试提取财务报告预约时间表(运行时长：一分钟左右)"""
-        web_df = fetch_prbookinfos('2018-4-30')
+        web_df = fetch_prbookinfos('2018-3-31')
         total_rows = _get_total_rows()
         self.assertEqual(web_df.shape[0], total_rows)
+
+        # 日期不得早于2004-3-31年
+        with self.assertRaises(NoDataBefore):
+            fetch_prbookinfos('2007-3-31')
+
+        with self.assertRaises(ValueError):
+            future_date = pd.Timestamp('today') + pd.Timedelta(days=1)
+            fetch_prbookinfos(future_date)
 
 
 if __name__ == '__main__':

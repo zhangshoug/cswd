@@ -28,10 +28,10 @@ import requests
 import time
 from ..common.utils import data_root
 from .base import get_page_response
-from .exceptions import ThreeTryFailed, ConnectFailed
+from .exceptions import ThreeTryFailed, ConnectFailed, NoWebData, NoDataBefore
 
 logger = logbook.Logger('巨潮网')
-
+EARLIEST_DATE = pd.Timestamp('2004-6-30')
 JUCHAO_MARKET_MAPS = {
     'shmb': '上海主板',
     'szmb': '深圳主板',
@@ -405,10 +405,23 @@ def fetch_industry_stocks(date_, department='cninfo'):
     return res
 
 
-def previous_report_date(date_):
-    date_ = pd.Timestamp(date_).date()
-    qe = pd.tseries.offsets.QuarterEnd(-1)
-    return qe.apply(date_).date()
+def ensure_report_date(date_):
+    """
+    转换为报告日期
+
+    逻辑
+    ----
+        1. 如输入日期为当天，则自动转换为前一个财务报告期；
+        2. 如果为历史日期，输入日期必须为季度报告截止日期
+    """
+    date_ = pd.Timestamp(date_)
+    if date_.date() == pd.Timestamp('today').date():
+        qe = pd.tseries.offsets.QuarterEnd(-1)
+        return qe.apply(date_).date()
+    else:
+        if not date_.is_quarter_end:
+            raise ValueError('输入日期无效，应为报告截止日期')
+        return date_
 
 
 def _retry_one_page(url, data):
@@ -416,21 +429,23 @@ def _retry_one_page(url, data):
     return r.json()['prbookinfos']
 
 
-def fetch_prbookinfos(date_=pd.Timestamp('today')):
-    """
-    股票最新财务报告预约披露时间表
+def _get_markets(date_):
+    date_ = pd.Timestamp(date_)
+    # 2004年6月25日，举行中小企业板块首次上市仪式，新和成等8家公司挂牌上市
+    if date_.year < 2004:
+        return ('szmb', 'shmb')
+    # 2009年10月30日，中国创业板正式上市
+    if date_.year < 2010:
+        return ('szmb', 'shmb', 'szsme')
+    return JUCHAO_MARKET_MAPS.keys()
 
-    备注
-    ----
-        连续抓页，须长时间休眠才能正确完成
-        尤其是当出现异常页，再次尝试前，休眠至少3秒
-    """
-    url = 'http://three.cninfo.com.cn/new/information/getPrbookInfo'
-    cols = ['报告期', '首次预约', '第一次变更', '第二次变更', '第三次变更', '实际披露',
-            'orgId', '股票代码', '股票简称']
+
+def _fetch_prbookinfos(report_date, url, markets):
     dfs = []
-    report_date = previous_report_date(date_).strftime(r'%Y-%m-%d')
-    for _, market in enumerate(JUCHAO_MARKET_MAPS.keys()):
+    date_ = pd.Timestamp(report_date)
+    year = date_.year
+    q = date_.quarter
+    for market in markets:
         pagenum = 1
         total_page = 1
         has_next_page = True
@@ -439,7 +454,8 @@ def fetch_prbookinfos(date_=pd.Timestamp('today')):
                 'isDesc': False,
                 'pagenum': pagenum}
         while has_next_page and (pagenum <= total_page):
-            logger.info('提取{}第{}页数据'.format(
+            logger.info('提取{}年{}季度{}第{}页数据'.format(
+                year, q,
                 JUCHAO_MARKET_MAPS[market], pagenum))
             try:
                 r = get_page_response(url, 'post', data)
@@ -456,10 +472,39 @@ def fetch_prbookinfos(date_=pd.Timestamp('today')):
             dfs.append(df)
             pagenum += 1
             data.update(pagenum=pagenum)
-        # if b < len(JUCHAO_MARKET_MAPS) - 1:
-        #     # 完成一个板块板块，休眠
-        #     logger.info('完成{}，休眠3秒'.format(JUCHAO_MARKET_MAPS[market]))
-        #     time.sleep(3)
+    return dfs
+
+
+def fetch_prbookinfos(date_=pd.Timestamp('today')):
+    """
+    股票财务报告期预约披露时间表
+
+    参数
+    ----
+    date_ ： 类似日期
+        要抓取预约时间表的报告日期
+        默认为当天，代表当前日期下，上一个应公布财务报告的报告日期
+        除接受当日参数外，其余日期必须为标准财务报告截止日期
+        如2018-03-31,2017-12-31
+
+    备注
+    ----
+        连续抓页，须长时间休眠才能正确完成
+        尤其是当出现异常页，再次尝试前，休眠至少3秒
+
+    """
+    date_ = pd.Timestamp(date_)
+    if date_ < EARLIEST_DATE:
+        raise NoDataBefore('日期不得早于{}'.format(EARLIEST_DATE))
+    url = 'http://three.cninfo.com.cn/new/information/getPrbookInfo'
+    cols = ['报告期', '首次预约', '第一次变更', '第二次变更', '第三次变更', '实际披露',
+            'orgId', '股票代码', '股票简称']
+    report_date = ensure_report_date(date_).strftime(r'%Y-%m-%d')
+    markets = _get_markets(date_)
+    try:
+        dfs = _fetch_prbookinfos(report_date, url, markets)
+    except TypeError:
+        raise NoWebData('网页不存在报告截止日期为{}的预约时间表'.format(report_date))
     res = pd.concat(dfs, ignore_index=True)
     res.columns = cols
     return res
