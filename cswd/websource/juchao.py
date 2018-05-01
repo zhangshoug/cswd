@@ -31,7 +31,7 @@ from ..common.utils import data_root
 from .base import get_page_response, friendly_download
 from .exceptions import ThreeTryFailed, ConnectFailed, NoWebData, NoDataBefore
 
-logger = logbook.Logger('巨潮网')
+
 EARLIEST_DATE = pd.Timestamp('2004-6-30')
 JUCHAO_MARKET_MAPS = {
     'shmb': '上海主板',
@@ -364,6 +364,7 @@ def _industry_stocks(industry_id, date_str):
 
 def fetch_industry_stocks(date_, department='cninfo'):
     """行业分类股票列表"""
+    logger = logbook.Logger('巨潮行业分类')
     msg = '"cninfo"代表国证行业分类,"csrc"代表证监会行业分类'
     assert department in ('cninfo', 'csrc'), msg
     a_cols = ['code', 'short_name', 'b_code', 'b_short_name']
@@ -432,6 +433,7 @@ def _get_markets(date_):
 
 
 def _fetch_prbookinfos(report_date, url, markets):
+    logger = logbook.Logger('财务报告预约披露时间表')
     dfs = []
     date_ = pd.Timestamp(report_date)
     year = date_.year
