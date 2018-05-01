@@ -14,11 +14,12 @@
 """
 
 from bs4 import BeautifulSoup
-import click
+# import click # 不使用
 from datetime import datetime
 from io import BytesIO, StringIO
 import os
 import re
+import numpy as np
 import pandas as pd
 import logbook
 from itertools import product
@@ -27,7 +28,7 @@ from urllib.parse import quote
 import requests
 import time
 from ..common.utils import data_root
-from .base import get_page_response
+from .base import get_page_response, friendly_download
 from .exceptions import ThreeTryFailed, ConnectFailed, NoWebData, NoDataBefore
 
 logger = logbook.Logger('巨潮网')
@@ -190,20 +191,17 @@ def fetch_index_info():
     urls = [url_fmt.format(x[0], x[1]) for x in prod_]
     dfs = []
 
+    @friendly_download(30, max_sleep=1)
     def _process(url):
         # 部分网页并不存在
         try:
             page_response = get_page_response(url)
             df = pd.read_html(BytesIO(page_response.content), header=0)[1]
             dfs.append(df)
-        except ThreeTryFailed:
+        except ConnectFailed:
             pass
-    with click.progressbar(urls,
-                           length=len(urls),
-                           label="Fetch index info",
-                           ) as bar:
-        for url in bar:
-            _process(url)
+    for url in urls:
+        _process(url)
     data = pd.concat(dfs)
     col_names = ['name', 'code', 'base_day',
                  'base_point', 'launch_day', 'constituents']
@@ -343,7 +341,7 @@ def fetch_industry(date_str, department):
         msg_fmt = "或者当前日期的数据尚未发布，或者日期'{}'并非交易日"
         raise ValueError(msg_fmt.format(date_str))
 
-
+@friendly_download(30)
 def _industry_stocks(industry_id, date_str):
     url = "http://www.cnindex.com.cn/stockPEs.do"
     if len(industry_id) == 1:
@@ -352,12 +350,14 @@ def _industry_stocks(industry_id, date_str):
     else:
         # 国证行业分类
         category = '008100'
-    params = {'query.plate': quote('深沪全板块'),
-              'query.industry': industry_id,
-              'query.date': date_str,
-              'query.category': category,
-              'pageSize': '2000'}
-    r = get_page_response(url, method='post', params=params)
+    data = {
+        'query.plate':quote('深沪全市场'),
+        'query.category':category,
+        'query.industry':industry_id,
+        'query.date':date_str,
+        'pageSize':3000,             # 一次性完成所有页面加载
+    }
+    r = get_page_response(url, 'post', data)
     df = pd.read_html(r.text, skiprows=[0])[0].iloc[:, 1:]
     return df
 
@@ -370,7 +370,7 @@ def fetch_industry_stocks(date_, department='cninfo'):
     b_cols = ['group_code', 'group_name', 'industry_code', 'industry_name']
     c_cols = ['a_static_pe', 'a_roll_pe', 'b_static_pe', 'b_roll_pe',
               'ab_static_pe', 'ab_roll_pe']
-    date_str = pd.Timestamp(date_).strftime('%Y-%m-%d')
+    date_str = pd.Timestamp(date_).strftime(r'%Y-%m-%d')
     industry = fetch_industry(date_str, department)
     if department == 'cninfo':
         b_cols = ['sector_code', 'sector_name'] + b_cols
@@ -382,23 +382,14 @@ def fetch_industry_stocks(date_, department='cninfo'):
         pat), 'industry_id'].values
     dfs = []
 
-    def progress_bar_item_show_func(value):
-        return value if value is None else '{} industry code: {} on {}'.format(department.upper(),
-                                                                               value,
-                                                                               date_str)
-
     def _process(industry_id):
         df = _industry_stocks(industry_id, date_str)
         dfs.append(df)
 
-    with click.progressbar(codes,
-                           length=len(codes),
-                           item_show_func=progress_bar_item_show_func,
-                           label="Fetch PE",
-                           ) as bar:
-        for i_id in bar:
-            _process(i_id)
-    res = pd.concat(dfs)
+    for code in codes:
+        _process(code)
+        logger.info('部门：{}，日期：{}，编码:{}'.format(department, date_, code))
+    res = pd.concat(dfs, ignore_index=True)
     res.columns = col_names
     res = res.loc[~res.code.isnull(), :]
     res.code = res.code.map(lambda x: str(int(x)).zfill(6))
@@ -457,6 +448,9 @@ def _fetch_prbookinfos(report_date, url, markets):
             logger.info('提取{}年{}季度{}第{}页数据'.format(
                 year, q,
                 JUCHAO_MARKET_MAPS[market], pagenum))
+            if pagenum % 30 == 0:
+                t = np.random.randint(1, 3 * 100) / 100
+                time.sleep(t)
             try:
                 r = get_page_response(url, 'post', data)
                 book = r.json()['prbookinfos']

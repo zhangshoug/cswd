@@ -98,7 +98,6 @@ def _post(url, params, timeout):
     raise ConnectFailed('三次尝试均失败。服务器：{}'.format(get_server_name(url)))
 
 
-@friendly_download(30, max_sleep=MAX_SLEEP)
 def get_page_response(url, method='get', params=None, timeout=(6, 3)):
     if method == 'get':
         return _get(url, params, timeout)
