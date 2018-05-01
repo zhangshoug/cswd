@@ -109,7 +109,6 @@ def _query_code(code, is_index):
     return code
 
 
-@friendly_download()
 def fetch_history(code, start, end=None, is_index=False):
     """获取股票或者指数的历史交易数据（不复权）
     备注：

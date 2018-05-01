@@ -27,10 +27,17 @@ from urllib.parse import quote
 import requests
 import time
 from ..common.utils import data_root
-from .base import friendly_download, get_page_response
-from .exceptions import ThreeTryFailed
+from .base import get_page_response
+from .exceptions import ThreeTryFailed, ConnectFailed
 
 logger = logbook.Logger('巨潮网')
+
+JUCHAO_MARKET_MAPS = {
+    'shmb': '上海主板',
+    'szmb': '深圳主板',
+    'szsme': '中小板',
+    'szcn': '创业板'
+}
 
 _ACCEPTABLE_ITEM = frozenset(
     [
@@ -409,19 +416,21 @@ def _retry_one_page(url, data):
     return r.json()['prbookinfos']
 
 
-def fetch_latest_prbookinfos(date_=pd.Timestamp('today')):
+def fetch_prbookinfos(date_=pd.Timestamp('today')):
     """
     股票最新财务报告预约披露时间表
 
-    初步完成。但尚未完全测试。如二次以上完成，再合成应该没有问题。
+    备注
+    ----
+        连续抓页，须长时间休眠才能正确完成
+        尤其是当出现异常页，再次尝试前，休眠至少3秒
     """
     url = 'http://three.cninfo.com.cn/new/information/getPrbookInfo'
     cols = ['报告期', '首次预约', '第一次变更', '第二次变更', '第三次变更', '实际披露',
             'orgId', '股票代码', '股票简称']
-    markets = ('szmb',  'szsme', 'szcn', 'shmb')
     dfs = []
     report_date = previous_report_date(date_).strftime(r'%Y-%m-%d')
-    for b, market in enumerate(markets):
+    for _, market in enumerate(JUCHAO_MARKET_MAPS.keys()):
         pagenum = 1
         total_page = 1
         has_next_page = True
@@ -430,12 +439,14 @@ def fetch_latest_prbookinfos(date_=pd.Timestamp('today')):
                 'isDesc': False,
                 'pagenum': pagenum}
         while has_next_page and (pagenum <= total_page):
-            logger.info('板块{}第{}页'.format(market, pagenum))
+            logger.info('提取{}第{}页数据'.format(
+                JUCHAO_MARKET_MAPS[market], pagenum))
             try:
                 r = get_page_response(url, 'post', data)
                 book = r.json()['prbookinfos']
-            except Exception:
-                logger.info('板块{}第{}页出现异常！！！'.format(market, pagenum))
+            except ConnectFailed:
+                logger.info('{}第{}页出现异常！！！'.format(
+                    JUCHAO_MARKET_MAPS[market], pagenum))
                 logger.info('休眠3秒后再次尝试')
                 time.sleep(3)
                 book = _retry_one_page(url, data)
@@ -445,10 +456,10 @@ def fetch_latest_prbookinfos(date_=pd.Timestamp('today')):
             dfs.append(df)
             pagenum += 1
             data.update(pagenum=pagenum)
-        if b < len(markets) - 1:
-            # 完成一个板块板块，休眠
-            logger.info('完成板块{}，休眠3秒'.format(market))
-            time.sleep(3)
+        # if b < len(JUCHAO_MARKET_MAPS) - 1:
+        #     # 完成一个板块板块，休眠
+        #     logger.info('完成{}，休眠3秒'.format(JUCHAO_MARKET_MAPS[market]))
+        #     time.sleep(3)
     res = pd.concat(dfs, ignore_index=True)
     res.columns = cols
     return res
