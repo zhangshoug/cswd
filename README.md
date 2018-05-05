@@ -11,12 +11,14 @@ A股网络数据工具。
 + 克隆到本地
 + 进入安装环境，转移至安目录后执行
 
-`>>> pip install git+https://github.com/liudengfeng/cswd`
+`>>> python setup.py install
 
 
 ## 测试
 
-`>>> pytest -v --pyargs cswd`
++ 转至测试目录执行
+
+`>>> pytest -v`
 
 ## 初始化
 
@@ -36,7 +38,7 @@ A股网络数据工具。
 3. 添加融资融券数据
 4. 根据公告解析当日发布财报的股票代码，添加相关代码的财务报告及财务指标数据
 
-`>>> daily_refresh`
+`>>> daily-refresh`
 
 + 用时：整个过程预计耗时20分钟，根据个人网络环境及计算机配置，用时有较大差异。
 + 建议：使用任务计划程序后台执行。

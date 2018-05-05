@@ -46,7 +46,7 @@ class TestJuChao(unittest.TestCase):
 
         # 日期不得早于2004-3-31年
         with self.assertRaises(NoDataBefore):
-            fetch_prbookinfos('2007-3-31')
+            fetch_prbookinfos('2004-3-31')
 
         with self.assertRaises(ValueError):
             future_date = pd.Timestamp('today') + pd.Timedelta(days=1)

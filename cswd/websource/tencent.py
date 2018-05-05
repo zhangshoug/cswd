@@ -1,4 +1,6 @@
 """
+基本不使用腾讯网提取数据！！！
+
 腾讯股票数据处理模块
 
 数据类别：
@@ -60,8 +62,8 @@ def fetch_qq_industry_categories():
 
 def fetch_concept_categories():
     """概念分类"""
-    id_p = re.compile('a-l-bd02\d{4}')
-    href = re.compile('id=bd02\d{4}')
+    id_p = re.compile(r'a-l-bd02\d{4}')
+    href = re.compile(r'id=bd02\d{4}')
     df = _fetch_categories(id_p, href)
     df.columns = ['concept_id','name']
     return df

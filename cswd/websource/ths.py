@@ -1,7 +1,8 @@
 """
+
 selenium配置过程
 # 安装geckodriver
-1. 下载geckodriver对应版本 网址：https://github.com/mozilla/geckodriver
+1. 下载geckodriver对应版本 网址：https://github.com/mozilla/geckodriver/releases
 2. 解压：tar -xvzf geckodriver*
 3. $sudo mv ./geckodriver /usr/bin/geckodriver
 
@@ -22,7 +23,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from .selenium import make_headless_browser
+from ._selenium import make_headless_browser
 from .base import friendly_download
 
 logbook.set_datetime_format('local')
