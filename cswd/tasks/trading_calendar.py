@@ -36,8 +36,6 @@ def flush_trading_calendar():
             logger.info(fmt.format(to_add.__tablename__,
                                    len(trading_days),
                                    len(non_trading_days)))
-            log_to_db(TradingCalendar.__tablename__, True, len(
-                to_add), Action.INSERT, start=start_date, end=end_date)
         else:
             last_day = sess.query(func.max(TradingCalendar.date)).scalar()
             date_rng = pd.date_range(last_day, end_date)
@@ -59,5 +57,3 @@ def flush_trading_calendar():
                 fmt = '{} 刷新' + info + '{}状态'
                 logger.info(fmt.format(
                     TradingCalendar.__tablename__, d.date()))
-                log_to_db(TradingCalendar.__tablename__, True, 1,
-                          Action.UPDATE, start=d.date(), end=d.date())
