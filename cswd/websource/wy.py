@@ -156,6 +156,7 @@ def fetch_last_history():
     return df
 
 
+@friendly_download(20,60,1)
 def fetch_cjmx(code, tdate):
    """
    提取股票历史交易明细
