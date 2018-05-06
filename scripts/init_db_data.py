@@ -9,12 +9,12 @@
         4. 交易日历
     随后执行：
         . 股票分类信息（行业、概念、地域）
-        . 股东
         . 股票概况
         . 融资融券
         . 股票日线数据
         . 股票分时交易数据（务必在日线数据完成后才进行）
         . 财务报告及财务指标
+        . 股东
 指数：
     顺序执行：
         1. 指数信息
@@ -62,7 +62,6 @@ def main():
     flush_stock_issue(True)
     flush_trading_calendar()
     flush_stock_category()
-    flush_shareholder(init=True)
     flush_gpgk(init=True)
     flush_stockdaily(init=True)
     flush_dealdetail(init=True)
@@ -77,6 +76,8 @@ def main():
     flush_index_daily()
 
     flush_sina_data()
+    # 耗时长，放在最后(股东数据大约需要10小时以上)
+    flush_shareholder(init=True)
 
 if __name__ == '__main__':
     main()
