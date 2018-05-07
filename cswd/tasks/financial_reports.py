@@ -148,7 +148,7 @@ class ReportRefresher(object):
         msg_fmt = '{}科目长度应为{}，实际为{}（跳过：股票{}）'
         msg = msg_fmt.format(item_name, valid_rows, len(df), code)
         if df.shape[0] != valid_rows:
-            logger.exception(msg)
+            logger.warn(msg)
             return
         self._insert(sess, df, code)
 

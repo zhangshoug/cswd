@@ -71,12 +71,12 @@ def main():
     flush_margin(True)
 
     flush_treasury()
-    # 股票指数相关
+    # #股票指数相关
     flush_index_info()
     flush_index_daily()
 
     flush_sina_data()
-    # 耗时长，放在最后(股东数据大约需要10小时以上)
+    # # 耗时长，放在最后(股东数据大约需要10小时以上)
     flush_shareholder(init=True)
 
 if __name__ == '__main__':
