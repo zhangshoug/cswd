@@ -56,26 +56,26 @@ from cswd.tasks.index_daily import flush_index_daily
 from cswd.tasks.sina_data_center import flush_sina_data
 
 def main():
-    creat_tables()
+    # creat_tables()
     
-    flush_stock_codes()
-    flush_stock_issue(True)
-    flush_trading_calendar()
-    flush_stock_category()
-    flush_gpgk(init=True)
-    flush_stockdaily(init=True)
-    flush_dealdetail(init=True)
-    flush_reports(None, True)
-    flush_adjustment(init=True)
-    flush_forecast()
-    flush_margin(True)
+    # flush_stock_codes()
+    # flush_stock_issue(True)
+    # flush_trading_calendar()
+    # flush_stock_category()
+    # flush_gpgk(init=True)
+    # flush_stockdaily(init=True)
+    # flush_dealdetail(init=True)
+    # flush_reports(None, True)
+    # flush_adjustment(init=True)
+    # flush_forecast()
+    # flush_margin(True)
 
-    flush_treasury()
+    # flush_treasury()
     # #股票指数相关
-    flush_index_info()
-    flush_index_daily()
+    # flush_index_info()
+    # flush_index_daily()
 
-    flush_sina_data()
+    # flush_sina_data()
     # # 耗时长，放在最后(股东数据大约需要10小时以上)
     flush_shareholder(init=True)
 

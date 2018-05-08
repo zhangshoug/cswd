@@ -64,12 +64,15 @@ def flush(codes):
         # 读取全部分红派息表网络数据
         df = adjustment_reader.read(code)
         # 如存在分红派息数据
-        if df:
-            # 如分红、派息均无效，则去除
-            df = df.dropna(0, 'all', subset=['amount', 'ratio'])
+        if df is not None:
+            try:
+                # 如分红、派息均无效，则去除
+                df = df.dropna(0, 'all', subset=['amount', 'ratio'])
+            except KeyError:
+                continue
             data = df[df.index.date >= start]
             # 如没有有效数据，则继续下一个代码
-            if not data:
+            if data.empty:
                 continue
             data.sort_index(inplace=True)
             to_adds = _gen(code, data)
