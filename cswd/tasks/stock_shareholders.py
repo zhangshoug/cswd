@@ -72,6 +72,10 @@ def existed_obj(sess, code, date_, type_, id_):
 def insert_preprocessed_data():
     """插入预先整理好(github下载)的数据"""
     logger = logbook.Logger('github股东数据源')
+    # 防止重复，首先删除原数据
+    with session_scope() as sess:
+        rows = sess.query(Shareholder).delete()
+        logger.info('删除{}行数据'.format(rows))
     for page in range(1, 31):
         logger.info('读取第{}个csv数据'.format(page))
         objs = []
@@ -83,24 +87,24 @@ def insert_preprocessed_data():
             date_ = row['date']
             type_ = row['type']
             id_ = row['id']
-            if not existed_obj(sess, code, date_, type_, id_):
-                obj = Shareholder(
-                    code=code,
-                    date=date_,
-                    A001_股东类型=type_,
-                    A002_内部序号=id_,
-                    A003_股东简称=row['shareholder'],
-                    A004_持仓市值=row['amount'],
-                    A005_持仓数量=row['volume'],
-                    A006_与上期持仓股数变化=row['changed'],
-                    A007_占基金净值比例=row['fund_ratio'],
-                    A008_占流通股比例=row['ratio'],
-                )
-                objs.append(obj)
+            # if not existed_obj(sess, code, date_, type_, id_):
+            obj = Shareholder(
+                code=code,
+                date=date_,
+                A001_股东类型=type_,
+                A002_内部序号=id_,
+                A003_股东简称=row['shareholder'],
+                A004_持仓市值=row['amount'],
+                A005_持仓数量=row['volume'],
+                A006_与上期持仓股数变化=row['changed'],
+                A007_占基金净值比例=row['fund_ratio'],
+                A008_占流通股比例=row['ratio'],
+            )
+            objs.append(obj)
         sess.add_all(objs)
         sess.commit()
         sess.close()
-        logger.info('添加{}行数据'.format(len(objs)))
+        logger.info('读取第{}个文件，添加{}行到数据库'.format(page, len(objs)))
 
 
 def existed(sess, code, date_, type_):
