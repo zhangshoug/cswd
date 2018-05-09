@@ -149,8 +149,6 @@ def sanitize_dates(start, end):
 
     当开始日期为None，返回市场开始日期；
     当结束日期为None, 返回当前日期；
-
-    否则转换为date对象。
     """
     start = _sanitize_date(start, MARKET_START.date())
     end = _sanitize_date(end, dt.datetime.today().date())
