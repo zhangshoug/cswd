@@ -108,3 +108,5 @@ ENV/
 
 # log
 *geckodriver.log
+
+.vs
