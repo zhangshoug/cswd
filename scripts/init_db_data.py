@@ -55,9 +55,11 @@ from cswd.tasks.index_daily import flush_index_daily
 # 新浪机构评级、业绩预测、业绩公告
 from cswd.tasks.sina_data_center import flush_sina_data
 
+logger = logbook.Logger('初始化数据')
+
 def main():
     creat_tables()
-    
+    logger.info('完整数据约12G，预计用时超过10小时以上......')
     flush_stock_codes()
     flush_stock_issue(True)
     flush_trading_calendar()
