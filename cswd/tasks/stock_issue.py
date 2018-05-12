@@ -27,15 +27,12 @@ def get_issue(reader, code):
     return issue
 
 
-def flush_stock_issue(init=False):
+def flush_stock_issue():
+    """刷新沒有上市日期的股票"""
     sess = get_session()
     f10 = THSF10()
-    if init:
-        query = sess.query(Stock).order_by(
-            Stock.code).filter(Stock.latest_status.isnot(Status.unlisted))
-    else:
-        query = sess.query(Stock).order_by(
-            Stock.code).filter(Stock.latest_status.is_(Status.in_trading))
+    query = sess.query(Stock).order_by(
+        Stock.code).filter(Stock.latest_status.is_(Status.in_trading))
     codes = [x.code for x in query.all()]
     for code in codes:
         ipo = sess.query(Issue.A004_上市日期).filter(Issue.code == code).scalar()

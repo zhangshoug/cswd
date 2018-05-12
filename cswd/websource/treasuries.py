@@ -13,26 +13,31 @@ from ..common.utils import sanitize_dates
 
 from .base import get_page_response
 
+EARLIEST_POSSIBLE_DATE = pd.Timestamp('2006-3-1', tz='UTC')
 
-EARLIEST_POSSIBLE_DATE = pd.Timestamp('2006-3-1', tz = 'UTC')
-
-DB_COLS_NAME = ['m1','m3','m6','y1','y2','y3',
-                'y5','y7','y10','y20','y30']
+DB_COLS_NAME = [
+    'm1', 'm3', 'm6', 'y1', 'y2', 'y3', 'y5', 'y7', 'y10', 'y20', 'y30'
+]
 DB_INDEX_NAME = 'date'
 
-OUTPUT_COLS_NAME = ['1month', '3month','6month', '1year', '2year', '3year',
-                    '5year', '7year', '10year', '20year', '30year']
+OUTPUT_COLS_NAME = [
+    '1month', '3month', '6month', '1year', '2year', '3year', '5year', '7year',
+    '10year', '20year', '30year'
+]
 OUTPUT_INDEX_NAME = 'Time Period'
 
-DONWLOAD_URL = "http://yield.chinabond.com.cn/cbweb-mn/yc/downYearBzqx?year=%s&&wrjxCBFlag=0&&zblx=txy&ycDefId=%s"
-YIELD_MAIN_URL = 'http://yield.chinabond.com.cn/cbweb-mn/yield_main'
+DONWLOAD_URL = r"http://yield.chinabond.com.cn/cbweb-mn/yc/downYearBzqx?year=%s&&wrjxCBFlag=0&&zblx=txy&ycDefId=%s"
+YIELD_MAIN_URL = r'http://yield.chinabond.com.cn/cbweb-mn/yield_main'
 
 
 def read_local_data():
     """读取本地文件数据"""
-    df = load_csv('treasury_curves.csv',
-                  kwargs = {'index_col':'date',
-                            'parse_dates':True})
+    df = load_csv(
+        'treasury_curves.csv',
+        kwargs={
+            'index_col': 'date',
+            'parse_dates': True
+        })
     return df
 
 
@@ -66,7 +71,8 @@ def fetch_treasury_by_year(year_int):
     matchs = re.search(r'\?ycDefIds=(.*?)\&', response.text)
     ycdefids = matchs.group(1)
     assert (ycdefids is not None)
-    response = get_page_response(DONWLOAD_URL % (year_int, ycdefids), timeout = (12,12))
+    response = get_page_response(
+        DONWLOAD_URL % (year_int, ycdefids), timeout=(12, 12))
     df = pd.read_excel(BytesIO(response.content))
     return df
 
@@ -74,11 +80,11 @@ def fetch_treasury_by_year(year_int):
 def _preprocess(df, start, end):
     """选取及处理指定期间的数据"""
     df.index = pd.to_datetime(df['日期'])
-    df.drop('日期',inplace=True)
+    df.drop('日期', axis=1, inplace=True)
     df = df[start:end]
     if df.empty:
         return pd.DataFrame()
-    pivot_data = df.pivot(index='日期', columns='标准期限(年)', values='收益率(%)')
+    pivot_data = df.pivot(columns='标准期限(年)', values='收益率(%)')
     labels = [0.08, 0.25, 0.5, 1.0, 2.0, 3.0, 5.0, 7.0, 10.0, 20.0, 30.0]
     pivot_data = pivot_data.reindex(labels, axis="columns")
     data = pivot_data.loc[:, labels]
@@ -88,7 +94,8 @@ def _preprocess(df, start, end):
     # 百分比转换为小数
     return data * 0.01
 
-def fetch_treasury_data_from(start, end = pd.Timestamp('today')):
+
+def fetch_treasury_data_from(start, end=pd.Timestamp('today')):
     """
     获取期间资金成本数据
 

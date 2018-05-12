@@ -89,7 +89,7 @@ def flush(codes):
         sess.close()
 
 
-def flush_adjustment(codes=None, init=False):
+def flush_adjustment(codes=None):
     """
     刷新股票分红派息数据
     
@@ -97,8 +97,8 @@ def flush_adjustment(codes=None, init=False):
         如初始化则包含所有曾经上市的股票代码，含已经退市
         否则仅包含当前在市的股票代码
     """
-    if init or codes is None:
-        codes = get_all_codes(True)
+    if codes is None:
+        codes = get_all_codes(False)
     else:
         codes = ensure_list(codes)
     flush(codes)

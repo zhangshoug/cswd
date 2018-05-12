@@ -138,7 +138,7 @@ def batch_flush(codes):
     return res
 
 
-def flush_gpgk(codes=None, init=False):
+def flush_gpgk(codes=None):
     """
     刷新股票概况信息
     
@@ -151,8 +151,8 @@ def flush_gpgk(codes=None, init=False):
         p2 = not_yet_updated(x, ShortName)
         return sorted(list(p1.union(p2)))
 
-    if init or codes is None:
-        codes = get_all_codes(init)
+    if codes is None:
+        codes = get_all_codes(False)
     else:
         codes = ensure_list(codes)
     to_do = get_to_do(codes)

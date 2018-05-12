@@ -5,8 +5,9 @@
     首先顺序执行：
         1. 创建表
         2. 初始化所有股票代码
-        3. 股票发行数据
-        4. 交易日历
+        3. 加载github暂存初始化数据(仅当表为空时才执行，防止重复)
+        4. 股票发行数据
+        5. 交易日历
     随后执行：
         . 股票分类信息（行业、概念、地域）
         . 股票概况
@@ -32,6 +33,7 @@ logbook.StreamHandler(sys.stdout).push_application()
 
 
 from cswd.tasks.tables import creat_tables
+from cswd.tasks.load_data import github_data_to_sql
 from cswd.tasks.trading_calendar import flush_trading_calendar
 
 from cswd.tasks.stock_codes import flush_stock_codes
@@ -59,16 +61,18 @@ logger = logbook.Logger('初始化数据')
 
 def main():
     creat_tables()
-    logger.info('完整数据约12G，预计用时超过10小时以上......')
+    logger.info('完整数据约12G，预计用时约4小时......')
     flush_stock_codes()
-    flush_stock_issue(True)
+    # 加载github数据
+    github_data_to_sql()
+    flush_stock_issue()
     flush_trading_calendar()
     flush_stock_category()
-    flush_gpgk(init=True)
+    flush_gpgk()
     flush_stockdaily(init=True)
     flush_dealdetail(init=True)
-    flush_reports(None, True)
-    flush_adjustment(init=True)
+    flush_reports()
+    flush_adjustment()
     flush_forecast()
     flush_margin(True)
 
@@ -78,7 +82,7 @@ def main():
     flush_index_daily()
 
     flush_sina_data()
-    flush_shareholder(init=True)
+    flush_shareholder()
 
 if __name__ == '__main__':
     main()

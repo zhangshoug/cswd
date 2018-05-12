@@ -26,85 +26,85 @@ from .utils import get_all_codes, log_to_db
 logger = logbook.Logger('股东持股')
 
 
-def load_from_github(page):
-    url_fmt = 'https://raw.githubusercontent.com/liudengfeng/data/master/shareholder_histoires/shareholder_histoires_{}.csv'
-    url = url_fmt.format(str(page).zfill(2))
-    df = pd.read_csv(url)
-    return df
+# def load_from_github(page):
+#     file_name_fmt = '/home/ldf/stockdata/shareholder_histoires/shareholder_histoires_{}.csv'
+#     file_name = file_name_fmt.format(str(page).zfill(2))
+#     df = pd.read_csv(file_name)
+#     return df
 
 
-def type_map(x):
-    if x == 1:
-        return ShareholderType.circulating
-    elif x == 2:
-        return ShareholderType.main
-    elif x == 3:
-        return ShareholderType.fund
-    else:
-        raise ValueError('没有定义数值为{}的股东类型'.format(x))
+# def type_map(x):
+#     if x == 1:
+#         return ShareholderType.circulating
+#     elif x == 2:
+#         return ShareholderType.main
+#     elif x == 3:
+#         return ShareholderType.fund
+#     else:
+#         raise ValueError('没有定义数值为{}的股东类型'.format(x))
 
 
-def preprocess(df):
-    """整理数据"""
-    df['code'] = df.code.map(lambda x: str(x).zfill(6))
-    df['date'] = df.date.map(lambda x: pd.Timestamp(x).date())
-    df['type'] = df.type.map(type_map)
-    return df
+# def preprocess(df):
+#     """整理数据"""
+#     df['code'] = df.code.map(lambda x: str(x).zfill(6))
+#     df['date'] = df.date.map(lambda x: pd.Timestamp(x).date())
+#     df['type'] = df.type.map(type_map)
+#     return df
 
 
-def existed_obj(sess, code, date_, type_, id_):
-    """判定是否存在实例"""
-    stmt = sess.query(
-        Shareholder
-    ).filter(
-        Shareholder.code == code
-    ).filter(
-        Shareholder.date == date_
-    ).filter(
-        Shareholder.A001_股东类型 == type_
-    ).filter(
-        Shareholder.A002_内部序号 == id_
-    )
-    res = sess.query(stmt.exists()).scalar()
-    return res
+# def existed_obj(sess, code, date_, type_, id_):
+#     """判定是否存在实例"""
+#     stmt = sess.query(
+#         Shareholder
+#     ).filter(
+#         Shareholder.code == code
+#     ).filter(
+#         Shareholder.date == date_
+#     ).filter(
+#         Shareholder.A001_股东类型 == type_
+#     ).filter(
+#         Shareholder.A002_内部序号 == id_
+#     )
+#     res = sess.query(stmt.exists()).scalar()
+#     return res
 
 
-def insert_preprocessed_data():
-    """插入预先整理好(github下载)的数据"""
-    logger = logbook.Logger('github股东数据源')
-    # 防止重复，首先删除原数据
-    with session_scope() as sess:
-        rows = sess.query(Shareholder).delete()
-        logger.info('删除{}行数据'.format(rows))
-    for page in range(1, 31):
-        logger.info('读取第{}个csv数据'.format(page))
-        objs = []
-        df = load_from_github(page)
-        p_df = preprocess(df)
-        sess = get_session()
-        for _, row in p_df.iterrows():
-            code = row['code']
-            date_ = row['date']
-            type_ = row['type']
-            id_ = row['id']
-            # if not existed_obj(sess, code, date_, type_, id_):
-            obj = Shareholder(
-                code=code,
-                date=date_,
-                A001_股东类型=type_,
-                A002_内部序号=id_,
-                A003_股东简称=row['shareholder'],
-                A004_持仓市值=row['amount'],
-                A005_持仓数量=row['volume'],
-                A006_与上期持仓股数变化=row['changed'],
-                A007_占基金净值比例=row['fund_ratio'],
-                A008_占流通股比例=row['ratio'],
-            )
-            objs.append(obj)
-        sess.add_all(objs)
-        sess.commit()
-        sess.close()
-        logger.info('读取第{}个文件，添加{}行到数据库'.format(page, len(objs)))
+# def insert_preprocessed_data():
+#     """插入预先整理好(github下载)的数据"""
+#     logger = logbook.Logger('github股东数据源')
+#     # 防止重复，首先删除原数据
+#     with session_scope() as sess:
+#         rows = sess.query(Shareholder).delete()
+#         logger.info('删除{}行数据'.format(rows))
+#     for page in range(1, 31):
+#         logger.info('读取第{}个csv数据'.format(page))
+#         objs = []
+#         df = load_from_github(page)
+#         p_df = preprocess(df)
+#         sess = get_session()
+#         for _, row in p_df.iterrows():
+#             code = row['code']
+#             date_ = row['date']
+#             type_ = row['type']
+#             id_ = row['id']
+#             # if not existed_obj(sess, code, date_, type_, id_):
+#             obj = Shareholder(
+#                 code=code,
+#                 date=date_,
+#                 A001_股东类型=type_,
+#                 A002_内部序号=id_,
+#                 A003_股东简称=row['shareholder'],
+#                 A004_持仓市值=row['amount'],
+#                 A005_持仓数量=row['volume'],
+#                 A006_与上期持仓股数变化=row['changed'],
+#                 A007_占基金净值比例=row['fund_ratio'],
+#                 A008_占流通股比例=row['ratio'],
+#             )
+#             objs.append(obj)
+#         sess.add_all(objs)
+#         sess.commit()
+#         sess.close()
+#         logger.info('读取第{}个文件，添加{}行到数据库'.format(page, len(objs)))
 
 
 def existed(sess, code, date_, type_):
@@ -181,10 +181,6 @@ def _insert(sess, objs, msg_info, code, d):
     sess.add_all(objs)
     sess.commit()
     logger.info(msg_info)
-    # log_to_db(Shareholder.__tablename__, True,
-    #           len(objs), Action.INSERT, code,
-    #           start=d,
-    #           end=d)
 
 
 def _get_report_periods(sess, code, type_):
@@ -279,7 +275,7 @@ def _flush_by(sess, code, type_):
         flush_fund(sess, code)
 
 
-def flush_shareholder(codes=None, init=False):
+def flush_shareholder(codes=None):
     """
     刷新股票股东信息
     
@@ -287,10 +283,10 @@ def flush_shareholder(codes=None, init=False):
         如初始化则包含所有曾经上市的股票代码，含已经退市
         否则仅包含当前在市的股票代码
     """
-    if init:
-        insert_preprocessed_data()
+    # if init:
+    #     insert_preprocessed_data()
     if codes is None:
-        codes = get_all_codes(init)
+        codes = get_all_codes(False)
     else:
         codes = ensure_list(codes)
     # 按代码循环

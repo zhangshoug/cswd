@@ -15,15 +15,13 @@ import pandas as pd
 
 from cswd.sql.base import get_session, ShareholderType, Status
 from cswd.dataproxy.data_proxies import report_reader, indicator_reader
-from cswd.sql.models import (Issue, Stock,
-                             BalanceSheet,
-                             ProfitStatement,
-                             CashflowStatement,
-                             ZYZB, YLNL, CHNL, CZNL, YYNL, Action)
-from cswd.sql.constants import (BALANCESHEET_ITEM_MAPS,
-                                PROFITSTATEMENT_ITEM_MAPS,
-                                CASHFLOWSTATEMENT_ITEM_MAPS,
-                                ZYZB_ITEM_MAPS, YLNL_ITEM_MAPS, CHNL_ITEM_MAPS, CZNL_ITEM_MAPS, YYNL_ITEM_MAPS)
+from cswd.sql.models import (Issue, Stock, BalanceSheet, ProfitStatement,
+                             CashflowStatement, ZYZB, YLNL, CHNL, CZNL, YYNL,
+                             Action)
+from cswd.sql.constants import (
+    BALANCESHEET_ITEM_MAPS, PROFITSTATEMENT_ITEM_MAPS,
+    CASHFLOWSTATEMENT_ITEM_MAPS, ZYZB_ITEM_MAPS, YLNL_ITEM_MAPS,
+    CHNL_ITEM_MAPS, CZNL_ITEM_MAPS, YYNL_ITEM_MAPS)
 from cswd.websource.exceptions import NoWebData
 from cswd.common.utils import ensure_list
 
@@ -32,14 +30,17 @@ from .utils import get_all_codes, log_to_db
 REPORT_ITEMS = ('zcfzb', 'lrb', 'xjllb')
 INDICATOR_ITEMS = ('zhzb', 'ylnl', 'chnl', 'cznl', 'yynl')
 VALID_ITEMS = REPORT_ITEMS + INDICATOR_ITEMS
-ITEM_INFO_MAPS = {'zcfzb': ('资产负债表', BalanceSheet, BALANCESHEET_ITEM_MAPS),
-                  'lrb': ('利润表', ProfitStatement, PROFITSTATEMENT_ITEM_MAPS),
-                  'xjllb': ('现金流量表', CashflowStatement, CASHFLOWSTATEMENT_ITEM_MAPS),
-                  'zhzb': ('主要财务指标', ZYZB, ZYZB_ITEM_MAPS),
-                  'ylnl': ('盈利能力', YLNL, YLNL_ITEM_MAPS),
-                  'chnl': ('偿还能力', CHNL, CHNL_ITEM_MAPS),
-                  'cznl': ('成长能力', CZNL, CZNL_ITEM_MAPS),
-                  'yynl': ('营运能力', YYNL, YYNL_ITEM_MAPS)}
+
+ITEM_INFO_MAPS = {
+    'zcfzb': ('资产负债表', BalanceSheet, BALANCESHEET_ITEM_MAPS),
+    'lrb': ('利润表', ProfitStatement, PROFITSTATEMENT_ITEM_MAPS),
+    'xjllb': ('现金流量表', CashflowStatement, CASHFLOWSTATEMENT_ITEM_MAPS),
+    'zhzb': ('主要财务指标', ZYZB, ZYZB_ITEM_MAPS),
+    'ylnl': ('盈利能力', YLNL, YLNL_ITEM_MAPS),
+    'chnl': ('偿还能力', CHNL, CHNL_ITEM_MAPS),
+    'cznl': ('成长能力', CZNL, CZNL_ITEM_MAPS),
+    'yynl': ('营运能力', YYNL, YYNL_ITEM_MAPS)
+}
 
 logger = logbook.Logger('财务报告')
 
@@ -61,11 +62,10 @@ def _to_float(x):
 
 def _get_start_dates(sess, code, class_):
     """获取数据库指定代码所对应的表开始日期"""
-    last_date = sess.query(func.max(class_.date)).filter(
-        class_.code == code).scalar()
+    last_date = sess.query(func.max(
+        class_.date)).filter(class_.code == code).scalar()
     if last_date is None:
-        start = sess.query(Issue.A004_上市日期).filter(
-            Issue.code == code).scalar()
+        start = sess.query(Issue.A004_上市日期).filter(Issue.code == code).scalar()
     else:
         # 开始日期递延到下一天
         start = last_date + timedelta(days=1)
@@ -94,10 +94,7 @@ def insert_data(sess, df, code, date_, class_, maps_, type_name):
         setattr(obj, '_'.join((k, v)), value)
     sess.add(obj)
     sess.commit()
-    logger.info('{} 插入数据 代码：{}，日期：{}'.format(
-        type_name, code, date_))
-    log_to_db(class_.__tablename__, True,
-              df.shape[0], Action.INSERT, code, start=date_, end=date_)
+    logger.info('{} 插入数据 代码：{}，日期：{}'.format(type_name, code, date_))
 
 
 class ReportRefresher(object):
@@ -120,7 +117,7 @@ class ReportRefresher(object):
         type_name = ITEM_INFO_MAPS[self.item][0]
         start = _get_start_dates(sess, code, class_)
         if start is None:
-            logger.info('代码:{} 无最新数据'.format(code))
+            logger.info('{} 代码:{} 无最新数据'.format(type_name, code))
             return
         else:
             # 第一列为科目名称，其余为报告期字符串
@@ -134,8 +131,8 @@ class ReportRefresher(object):
                     continue
                 # 一直循环，如网页数据中的日期大于或等于开始日期，则添加到数据库
                 if r_date >= start:
-                    insert_data(sess, df, code, r_date,
-                                class_, maps_, type_name)
+                    insert_data(sess, df, code, r_date, class_, maps_,
+                                type_name)
                 else:
                     logger.info('{} 代码:{} 日期:{} 已经存在'.format(
                         type_name, code, r_date))
@@ -161,7 +158,7 @@ class ReportRefresher(object):
             sess.close()
 
 
-def flush_reports(codes=None, init=False):
+def flush_reports(codes=None):
     """
     刷新财务报告
     
@@ -169,8 +166,8 @@ def flush_reports(codes=None, init=False):
         如初始化则包含所有曾经上市的股票代码，含已经退市
         否则仅包含当前在市的股票代码
     """
-    if init or codes is None:
-        codes = get_all_codes(True)
+    if codes is None:
+        codes = get_all_codes(False)
     else:
         codes = ensure_list(codes)
     for item in VALID_ITEMS:

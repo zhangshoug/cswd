@@ -1,7 +1,5 @@
 """
 处理国库券数据（供算法分析使用）
-
-基础数据位于：./resources/treasury_curves.csv
 """
 from datetime import timedelta
 from sqlalchemy import func
