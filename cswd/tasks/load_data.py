@@ -11,8 +11,9 @@ from cswd.sql.models import (Issue, ShortName, Treasury, SpecialTreatment,
 from cswd.sql.base import get_engine, session_scope
 
 logger = logbook.Logger('加载初始化数据')
+
 classes = [
-    Issue, ShortName, Treasury, SpecialTreatment, Shareholder, BalanceSheet,
+    Issue, ShortName, SpecialTreatment, Treasury, Shareholder, BalanceSheet,
     ProfitStatement, CashflowStatement, ZYZB, YLNL, CHNL, CZNL, YYNL
 ]
 total_file_nums = [1, 1, 1, 1, 330, 6, 6, 6, 6, 6, 6, 6, 6]
@@ -22,7 +23,7 @@ url_fmt = 'https://github.com/liudengfeng/data/raw/master/{}/file{}.csv'
 
 def _download(table_name, num):
     file_name = url_fmt.format(table_name, num)
-    df = pd.read_csv(file_name, encoding='utf-8')
+    df = pd.read_csv(file_name, dtype={'股票代码': str}, encoding='utf-8')
     return df
 
 

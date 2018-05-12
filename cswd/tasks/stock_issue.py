@@ -8,7 +8,6 @@ from cswd.sql.models import Stock, Issue
 from cswd.sql.constants import ISSUE_MAPS
 from cswd.websource.ths import THSF10
 
-from .utils import log_to_db
 
 logger = logbook.Logger('股票发行信息')
 
@@ -41,11 +40,9 @@ def flush_stock_issue():
             if issue.A004_上市日期:
                 sess.add(issue)
                 sess.commit()
-                logger.info('新增，股票代码：{}'.format(code))
-                log_to_db(Issue.__tablename__, True, 1, Action.INSERT, code)
+                logger.info('刷新股票代码：{}'.format(code))
             else:
                 logger.info('股票代码：{} 尚未上市'.format(code))
-                log_to_db(Issue.__tablename__, False, 0, Action.INSERT, code)
         else:
             logger.info('股票代码：{} 发行信息无需更新'.format(code))
 
