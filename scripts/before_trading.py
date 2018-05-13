@@ -6,12 +6,18 @@
 内容：
     1. 股票代码
     2. 融资融券数据
+    3. 股票类别
 """
 from cswd.tasks.stock_codes import flush_stock_codes
 from cswd.tasks.margin_data import flush_margin
 from cswd.tasks.stock_category import flush_stock_category
 
-if __name__ == '__main__':
+
+def main():
     flush_stock_codes()
     flush_margin()
     flush_stock_category()
+
+
+if __name__ == '__main__':
+    main()

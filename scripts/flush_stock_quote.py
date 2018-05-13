@@ -13,14 +13,15 @@ from cswd.dataproxy.data_proxies import is_trading_reader
 from cswd.tasks.utils import get_all_codes
 
 logger = logbook.Logger('股票实时报价')
-log_dir = data_root('logs')
+now = datetime.today()
 
 
 def _gen(df):
     qs = []
     for _, row in df.iterrows():
-        q = Quotation(code=row['股票代码'],
-                      date=datetime.strptime(row['日期'], '%Y-%m-%d').date())
+        q = Quotation(
+            code=row['股票代码'],
+            date=datetime.strptime(row['日期'], '%Y-%m-%d').date())
         for k, v in QUOTATION_MAPS.items():
             if v not in ('股票代码', '日期'):
                 setattr(q, '_'.join((k, v)), row[v])
@@ -37,14 +38,15 @@ def flush(sess, codes):
 
 
 def main():
-    sess = get_session()
-    codes = get_all_codes(False)
-    flush(sess, codes)
-    sess.close()
+    trading = is_trading_reader.read(oneday=now.date())
+    if trading:
+        sess = get_session()
+        codes = get_all_codes(False)
+        flush(sess, codes)
+        sess.close()
+    else:
+        logger.info('{}非交易时段'.format(now))
 
 
 if __name__ == '__main__':
-    today = datetime.today().date()
-    trading = is_trading_reader.read(oneday=today)
-    if trading:
-        main()
+    main()

@@ -6,7 +6,8 @@ import os
 
 from cswd.common.utils import data_root
 
-if __name__ == '__main__':
+
+def main():
     # 删除日志文件
     log_dir = data_root('logs')
     for fn in os.listdir(log_dir):
@@ -14,3 +15,7 @@ if __name__ == '__main__':
         os.remove(p)
     # 删除网络cache文件
     rmtree(data_root('webcache'))
+
+
+if __name__ == '__main__':
+    main()

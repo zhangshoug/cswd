@@ -69,6 +69,7 @@ class BookReportDate(object):
 
 
 def flush_report_dates():
+    """刷新上市公司预约披露季度报告时间表"""
     brd = BookReportDate()
     brd.refresh()
 

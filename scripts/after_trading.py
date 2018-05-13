@@ -1,11 +1,10 @@
 """
-盘后刷新数据
+只有当天为交易日时，才于盘后刷新
 
 内容：
-    1. 国库券资金成本
-    2. 指数日线
-    3. 股票日线
-    4. 股票分时
+    1. 指数日线
+    2. 股票日线
+    3. 股票分时
 
 说明：
     如果当日交易，则执行刷新（18点）
@@ -13,26 +12,24 @@
 import pandas as pd
 from cswd.dataproxy.data_proxies import is_trading_reader
 from cswd.tasks.trading_calendar import flush_trading_calendar
-from cswd.tasks.treasury import flush_treasury
+
 from cswd.tasks.index_daily import flush_index_daily
 from cswd.tasks.stock_daily import flush_stockdaily, append_last_daily
 from cswd.tasks.stock_dealdetail import flush_dealdetail
-# 新浪机构评级、业绩预测、业绩公告
-from cswd.tasks.sina_data_center import flush_sina_data
+
 
 def main():
-    # today = pd.Timestamp('today').date()
-    # is_trading = is_trading_reader.read(today)
+    today = pd.Timestamp('today').date()
+    is_trading = is_trading_reader.read(today)
+    # 再次刷新交易日期状态
     flush_trading_calendar()
-    flush_treasury()
-    # if is_trading:
-    flush_index_daily()
-    flush_stockdaily()
-    # 补充数据
-    append_last_daily()
-    flush_dealdetail()
+    if is_trading:
+        flush_index_daily()
+        flush_stockdaily()
+        # 补充数据
+        append_last_daily()
+        flush_dealdetail()
 
-    flush_sina_data()
 
 if __name__ == '__main__':
     main()

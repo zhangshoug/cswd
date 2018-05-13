@@ -222,9 +222,6 @@ def fetch_adjustment(stock_code):
 
     注意：
         使用除权基准日作为支付日，红股上市日作为生效日；
-        如红股上市日为空，则使用除权基准日替代；
-        极少数情形下，同一日有一笔以上记录（如：）
-
     """
     url = _get_url(stock_code, 'dividend')
     page_response = get_page_response(url)

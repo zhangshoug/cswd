@@ -9,7 +9,10 @@ from cswd.tasks.stock_shareholders import flush_shareholder
 from cswd.tasks.financial_reports import flush_reports
 from cswd.tasks.stock_gpgk import flush_gpgk
 
-if __name__ == '__main__':
+def main():
     flush_shareholder()
     flush_reports()
-    flush_gpgk()
+    flush_gpgk()    
+
+if __name__ == '__main__':
+    main()
