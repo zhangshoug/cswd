@@ -130,10 +130,11 @@ def _sanitize_date(obj, default):
     """转换为日期对象，如果为None则使用默认值。输出datetime.date对象"""
     if isinstance(obj, pd.Timestamp):
         return obj.date()
-    if isinstance(obj, dt.date):
-        return obj
+    # 务必排在dt.date之前
     if isinstance(obj, dt.datetime):
         return obj.date()
+    if isinstance(obj, dt.date):
+        return obj
     if is_number(obj):
         return dt.date(obj, 1, 1)
     if isinstance(obj, str):
