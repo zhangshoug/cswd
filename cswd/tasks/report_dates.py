@@ -13,7 +13,7 @@ import time
 
 logger = logbook.Logger('预约披露')
 today = pd.Timestamp('today')
-start = pd.Timestamp('today') - pd.Timedelta(days=10*365)
+start = pd.Timestamp('today') - pd.Timedelta(days=10 * 365)
 # 网站限定最近10年的数据？
 historical_dates = pd.date_range(
     start, today - pd.Timedelta(days=45), freq='Q')
@@ -31,7 +31,9 @@ class BookReportDate(object):
         for fn in data_files:
             df = self._read(fn)
             dfs.append(df)
-        return pd.concat(dfs)
+        df = pd.concat(dfs)
+        # 删除重复项，保留重复的最后那一行
+        return df.drop_duplicates(['股票代码', '报告期'], keep='last')
 
     def get_file_name(self, date_):
         date_str = date_.strftime(r'%Y%m%d')
