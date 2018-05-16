@@ -27,7 +27,7 @@ from ..websource.date_utils import is_trading_day, get_non_trading_days, get_tra
 from .cache import DataProxy
 
 # 交易日期
-is_trading_reader = DataProxy(is_trading_day, time_str='9:26:00')
+is_trading_reader = DataProxy(is_trading_day, time_str='9:30:00')
 non_trading_days_reader = DataProxy(get_non_trading_days)
 trading_days_reader = DataProxy(get_trading_dates)
 

@@ -20,9 +20,9 @@ from cswd.tasks.stock_dealdetail import flush_dealdetail
 
 def main():
     today = pd.Timestamp('today').date()
-    is_trading = is_trading_reader.read(today)
     # 再次刷新交易日期状态
     flush_trading_calendar()
+    is_trading = is_trading_reader.read(today)
     if is_trading:
         flush_index_daily()
         flush_stockdaily()
