@@ -44,7 +44,8 @@ setup(
         'scripts/flush_stock_quote.py',
         'scripts/weekly.py',            
         'scripts/monthly.py',       
-        'scripts/delete_tmp_files.py', 
+        'scripts/delete_tmp_files.py',
+        'scripts/cjmx.py'   
     ],
     entry_points={
         'console_scripts': [
@@ -56,6 +57,7 @@ setup(
             'daily-refresh = daily:main',
             'daily-refresh-notice = flush_by_notice:by_notice',
             'refresh-trading-data = after_trading:main',
+            'refresh-cjmx = cjmx:main',
             'refresh-global-news = flush_global_news:main',
             'weekly-refresh = weekly:main',
             'monthly-refresh = monthly:main',

@@ -35,9 +35,9 @@ PATH=/home/ldf/anaconda3/envs/zipline/bin:/home/ldf/anaconda3/bin:/home/ldf/anac
 # 公告刷新(业绩预告、财务报告)，整点：8,12,16,20各执行一次
 0 8,12,16,20 * * * daily-refresh-notice >> ~/stockdata/logs/by_notice.log 2>&1
 
-# 盘后刷新(日线、分时)，每天19,凌晨1点各执行一次
+# 盘后刷新(日线、分时)，分别于19,凌晨1点执行
 0 19 * * 1-5 refresh-trading-data >> ~/stockdata/logs/refresh_trading_data.log 2>&1
-0  1 * * 2-6 refresh-trading-data >> ~/stockdata/logs/refresh_trading_data.log 2>&1
+0  1 * * 2-6 refresh-cjmx >> ~/stockdata/logs/refresh_cjmx.log 2>&1
 
 #================================每周任务=======================================#
 # 每周六上午7点删除临时文件

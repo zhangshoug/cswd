@@ -15,7 +15,7 @@ from cswd.tasks.trading_calendar import flush_trading_calendar
 
 from cswd.tasks.index_daily import flush_index_daily
 from cswd.tasks.stock_daily import flush_stockdaily, append_last_daily
-from cswd.tasks.stock_dealdetail import flush_dealdetail
+# from cswd.tasks.stock_dealdetail import flush_dealdetail
 
 
 def main():
@@ -28,7 +28,7 @@ def main():
         flush_stockdaily()
         # 补充数据
         append_last_daily()
-        flush_dealdetail()
+        # flush_dealdetail() # 耗时长，单独放在凌晨1点执行
 
 
 if __name__ == '__main__':
