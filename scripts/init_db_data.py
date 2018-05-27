@@ -60,28 +60,28 @@ from cswd.tasks.sina_data_center import flush_sina_data
 logger = logbook.Logger('初始化数据')
 
 def main():
-    # creat_tables()
-    # logger.info('完整数据约12G，预计用时约24小时......')
-    # flush_stock_codes()
-    # # 加载github数据
-    # github_data_to_sql()
-    # flush_stock_issue()
-    # flush_trading_calendar()
-    # flush_stock_category()
-    # flush_gpgk()
-    # flush_stockdaily(init=True)
-    # flush_dealdetail(init=True)
-    # flush_reports()
-    # flush_adjustment()
-    # flush_forecast()
-    # flush_margin(True)
+    creat_tables()
+    logger.info('完整数据约12G，预计用时约24小时......')
+    flush_stock_codes()
+    # 加载github数据
+    github_data_to_sql()
+    flush_stock_issue()
+    flush_trading_calendar()
+    flush_stock_category()
+    flush_gpgk()
+    flush_stockdaily(init=True)
+    flush_dealdetail(init=True)
+    flush_reports()
+    flush_adjustment()
+    flush_forecast()
+    flush_margin(True)
 
-    # flush_treasury()
-    # # #股票指数相关
-    # flush_index_info()
-    # flush_index_daily()
+    flush_treasury()
+    # #股票指数相关
+    flush_index_info()
+    flush_index_daily()
 
-    # flush_sina_data()
+    flush_sina_data()
     flush_shareholder()
 
 if __name__ == '__main__':
