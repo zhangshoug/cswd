@@ -40,7 +40,7 @@ ISSUE_KEYS = ('成立日期', '发行数量', '发行价格', '上市日期', '�
 
 NUM_PAT = re.compile(r'^-?\d*[.]?\d{1,}')
 PAGE_NUM = re.compile(r'\d/(\d{1,})')
-CONCEPT_CODE = re.compile(r'\d{6}')
+CODE_PAT = re.compile(r'(?<=code/)(.*)/$')
 STOCK_CODE_PAT = re.compile(r'\d{6}')
 
 
@@ -320,72 +320,54 @@ class THSF10(object):
         self.browser.delete_all_cookies()
         return df
 
-    def get_category_dataframe(self):
-        """获取同花顺、证监会行业分类，概念分类及地域分类表"""
+    def _get_category_dataframe(self, cate, name):
         records = []
         labels = ['类别', '编码', '网址', '标题']
-        self._get_page_source(self.host_url)
-        categories = self.browser.find_elements_by_tag_name('h2')
-        if len(categories) != 4:
-            raise PageSourceChanged('检测到网页源可能发生更改，需要更改解析方法！')
-        categories = [x.text for x in categories]
-        targets = self.browser.find_elements_by_css_selector(
-            'div.c_content.clearfix')
-        for i, target in enumerate(targets):
+        url_fmt = 'http://q.10jqka.com.cn/{}/'
+        url = url_fmt.format(cate)
+        self._get_page_source(url)
+        if name == '概念':
+            self._click_check('展开全部','收起', SLEEP)
+        targets = self.browser.find_elements_by_css_selector('.category')
+        c = name
+        for target in targets:
             elem_as = target.find_elements_by_tag_name('a')
-            c = categories[i]
-            logger.info('分类：{}'.format(c))
             for a in elem_as:
-                record = (c, a.get_attribute("name"),
-                          a.get_attribute('href'), a.get_attribute('title'))
-                records.append(record)
+                href = a.get_attribute('href')
+                code = re.search(CODE_PAT, href).group(0)[:-1] # 去掉尾部"/"
+                title = a.text
+                records.append((c, code, href, title))
         df = pd.DataFrame.from_records(records, columns=labels)
         return df
 
-    @friendly_download(10)
-    def get_stock_list_by_category(self, category_code):
-        """根据分类编码获取股票代码列表"""
-        if not category_code.isalnum() and len(category_code) <= 8:
-            raise ValueError('分类代码只能由字母与数字组成，且不超过8位')
-        base_url = 'http://basic.10jqka.com.cn/'
-        first = category_code[0]
-        if not first.isdigit():
-            add = 'zjh/{}.html'.format(category_code.upper())
-        elif len(category_code) == 4:
-            add = 'ths/{}.html'.format(category_code)
-        elif len(category_code) == 6:
-            add = 'dq/{}.html'.format(category_code)
-        elif len(category_code) == 8:
-            add = 'gn/{}.html'.format(category_code)
-        url = base_url + add
-        return self._one_category_stock_list(url)
+    def get_category_dataframe(self):
+        """获取同花顺、证监会行业分类，概念分类及地域分类表"""
+        cate_maps = {'dy':'地域','gn':'概念','thshy':'同花顺行业','zjhhy':'证监会行业'}
+        dfs = []
+        for k,v in cate_maps.items():
+            df = self._get_category_dataframe(k,v)
+            dfs.append(df)
+            logger.info('分类：{}'.format(v))
+        return pd.concat(dfs)
 
-    def _one_category_stock_list(self, url):
-        """给定分类网址下的股票代码清单"""
-        res = []
-        self._get_page_source(url)
-        target = self.browser.find_element_by_css_selector('.c_content')
-        elem_as = target.find_elements_by_tag_name('a')
-        for a in elem_as:
-            try:
-                href = a.get_attribute('href')
-                stock_code = re.findall(STOCK_CODE_PAT, href)[0]
-                res.append(stock_code)
-            except:
-                # 部分网页链接错误，忽略
-                pass
-        return res
+    def _get_stock_list_by_url(self, url, info, loc):
+        """根据网址获取股票代码列表"""
+        df = self._get_pages_dataframe(url, info, loc)    
+        return df['代码'].values
 
     def get_all_category_stock_list(self):
         """获取所有分类项下股票代码表"""
         df = self.get_category_dataframe()
         dfs = []
-        for code, c, t in zip(df['编码'].values,
-                              df['类别'].values, df['标题'].values):
-            one = pd.DataFrame({'code': code,
-                                'stock_codes': self.get_stock_list_by_category(code)})
-            logger.info('{}：{}, 股票数量：{}'.format(c, t, len(one)))
-            dfs.append(one)
+        for code, c, t, url in zip(df['编码'].values, df['类别'].values,
+                                   df['标题'].values, df['网址'].values):
+            info = '类别：{}， 子类：{}'.format(c, t)
+            # loc = 0 if c == '概念' else 1
+            one_cate = pd.DataFrame({'code': code,
+                                     'stock_codes': self._get_stock_list_by_url(url, info, -1)})
+            logger.info('{}：{}, 股票数量：{}'.format(c, t, one_cate.shape[0]))
+            dfs.append(one_cate)
+        self.browser.quit()
         return pd.concat(dfs)
 
     def get_index_info(self):
@@ -408,24 +390,34 @@ class THSF10(object):
             res.append(df)
         return pd.concat(res)
 
-    def get_last_daily(self):
-        """获取最新日线成交"""
-        url = 'http://q.10jqka.com.cn/'
+    @friendly_download(10)
+    def _get_pages_dataframe(self, url, info, table_loc=-1):
+        """获取网页数据框(单页或连续多页)"""
+        logger.info('当前网址：{}'.format(url))
         self._get_page_source(url)
-        page_info = self.browser.find_element_by_class_name('page_info')
-        num = int(re.split('/', page_info.text)[1])
+        try:
+            page_info = self.browser.find_element_by_class_name('page_info')
+            num = int(re.split('/', page_info.text)[1])
+        except NoSuchElementException:
+            num = 1
         dfs = []
         for page in range(1, num + 1):
             if page == 1 or page == num:
                 pass
             elif page == num - 1:
-                self._click_check('下一页', str('尾页'), SLEEP)
+                self._click_check('下一页', '尾页', SLEEP)
             else:
-                self._click_check('下一页', str('下一页'), SLEEP)
-            df = pd.read_html(self.browser.page_source)[1]
+                self._click_check('下一页', '下一页', SLEEP)
+            df = pd.read_html(self.browser.page_source)[table_loc]
             dfs.append(df)
-            logger.info('最新行情，第{}页，共{}页'.format(page, num))
-        self.browser.quit()
+            logger.info('{}，第{}页，共{}页'.format(info, page, num))
         out = pd.concat(dfs)
         out['代码'] = out['代码'].map(lambda x: str(x).zfill(6))
         return out
+
+    def get_last_daily(self):
+        """获取最新日线成交"""
+        url = 'http://q.10jqka.com.cn/'
+        df = self._get_pages_dataframe(url, '最新行情')
+        self.browser.quit()
+        return df
