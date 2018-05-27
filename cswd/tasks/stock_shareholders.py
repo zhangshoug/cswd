@@ -219,7 +219,7 @@ def flush_main(sess, code):
         try:
             df = top_10_reader.read(stock_code=code, query_date=d, type_='t')
         except NoWebData:
-            logger.info('无主要流通股东数据。股票：{}，日期：{}'.format(code, d.date()))
+            logger.info('股票：{}，日期：{}，主要流通股东数据'.format(code, d.date()))
             continue
         to_adds = _gen_main(df, code, d)
         type_info = '主要股东，股票：{}，日期：{}， 新增{}行'.format(
@@ -238,7 +238,7 @@ def flush_circulating(sess, code):
         try:
             df = top_10_reader.read(stock_code=code, query_date=d, type_='c')
         except NoWebData:
-            logger.info('无十大流通股东数据。股票：{}，日期：{}'.format(code, d.date()))
+            logger.info('股票：{}，日期：{}，十大流通股东数据。'.format(code, d.date()))
             continue
         to_adds = _gen_circulating(df, code, d)
         type_info = '十大流通股东，股票：{}，日期：{}，新增{}行'.format(

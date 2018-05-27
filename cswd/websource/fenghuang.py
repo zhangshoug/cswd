@@ -6,7 +6,7 @@ from io import BytesIO
 import re
 from bs4 import BeautifulSoup
 
-from .base import get_page_response
+from .base import get_page_response, friendly_download
 
 
 DATE_FMT = re.compile(r'\d{4}-\d{2}-\d{2}')
@@ -50,6 +50,7 @@ def _parse_status_history(content):
     return df
 
 
+@friendly_download(20,20,1)
 def fetch_gpgk(stock_code):
     """获取股票简况信息
     输出：
