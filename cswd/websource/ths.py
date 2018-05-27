@@ -350,9 +350,9 @@ class THSF10(object):
             logger.info('分类：{}'.format(v))
         return pd.concat(dfs)
 
-    def _get_stock_list_by_url(self, url, info, loc):
+    def _get_stock_list_by_url(self, url, info):
         """根据网址获取股票代码列表"""
-        df = self._get_pages_dataframe(url, info, loc)    
+        df = self._get_pages_dataframe(url, info)    
         return df['代码'].values
 
     def get_all_category_stock_list(self):
@@ -362,9 +362,8 @@ class THSF10(object):
         for code, c, t, url in zip(df['编码'].values, df['类别'].values,
                                    df['标题'].values, df['网址'].values):
             info = '类别：{}， 子类：{}'.format(c, t)
-            # loc = 0 if c == '概念' else 1
             one_cate = pd.DataFrame({'code': code,
-                                     'stock_codes': self._get_stock_list_by_url(url, info, -1)})
+                                     'stock_codes': self._get_stock_list_by_url(url, info)})
             logger.info('{}：{}, 股票数量：{}'.format(c, t, one_cate.shape[0]))
             dfs.append(one_cate)
         self.browser.quit()
