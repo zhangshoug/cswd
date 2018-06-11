@@ -407,7 +407,13 @@ class THSF10(object):
                 self._click_check('下一页', '尾页', SLEEP)
             else:
                 self._click_check('下一页', '下一页', SLEEP)
-            df = pd.read_html(self.browser.page_source)[table_loc]
+            try:
+                df = pd.read_html(self.browser.page_source)[table_loc]
+            except:
+                logger.warning('第{}页异常，回退一页再次尝试'.format(page))
+                self._click_check('上一页', '下一页', SLEEP)
+                self._click_check('下一页', '下一页', SLEEP)
+                df = pd.read_html(self.browser.page_source)[table_loc]             
             dfs.append(df)
             logger.info('{}，第{}页，共{}页'.format(info, page, num))
         out = pd.concat(dfs)

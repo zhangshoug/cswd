@@ -71,7 +71,6 @@ def _flush_stock_category(reader, sess):
         要刷新的分类对象列表；如为None，则刷新全部分类项目下的股票代码清单
      
     """
-    today = pd.Timestamp('today').date()
 
     def _gen(cate_codes, stock_codes):
         """生成股票分类清单"""
@@ -92,7 +91,7 @@ def flush_stock_category():
     f10 = THSF10()
     sess = get_session()
     _flush_category(f10, sess)
-    # _flush_stock_category(f10, sess)
+    _flush_stock_category(f10, sess)
     # 关闭会话
     sess.close()
     # # 退出浏览器
