@@ -37,18 +37,16 @@ def quater_range(start, end, type_):
 class Test_wy(unittest.TestCase):
     def test_fetch_margin(self):
         """测试抓取融资融券
-            1. shape 950*10
+            1. shape
             2. 列名称
-        """
-        df = fetch_margin_data('2018-4-3')
-        # self.assertSetEqual(df.shape, (950, 10))
-        self.assertEqual(df.shape[0], 950)
+        """       
+        df = fetch_margin_data('2018-06-14')
+        self.assertTrue(df.shape[0]>=90)
         self.assertEqual(df.shape[1], 10)
         for col in MARGIN_MAPS.values():
             self.assertIn(col, df.columns)
         with self.assertRaises(NoWebData):
-            query_date = pd.Timestamp('today').date()
-            fetch_margin_data(query_date)
+            fetch_margin_data('2018-06-18')
 
     def test_fetch_history(self):
         """测试抓取日线数据"""
@@ -157,4 +155,4 @@ class Test_wy(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main(verbosity=2)
+    unittest.main()

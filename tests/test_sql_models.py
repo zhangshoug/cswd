@@ -139,3 +139,6 @@ class TestModels(unittest.TestCase):
         fixed_cols = 4
         self.valid_attribute(fixed_cols, DealDetail,
                              DEALDETAIL_MAPS)
+
+if __name__ == '__main__':
+    unittest.main()

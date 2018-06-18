@@ -15,6 +15,6 @@ def make_headless_browser():
         'dom.ipc.plugins.enabled.libflashplayer.so', 'false')
 
     options = Options()
-    options.set_headless()
+    options.headless = True
     browser = webdriver.Firefox(firefoxProfile, options=options)
     return browser
