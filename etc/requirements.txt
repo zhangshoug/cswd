@@ -6,7 +6,7 @@ click>=6.7
 html5lib>=0.9999999
 Logbook>=1.1.0
 lxml>=4.1.1
-pandas==0.22.0
+pandas>=0.23.0
 requests>=2.18.4
 xlrd>=1.1.0
 sqlalchemy>=1.1.13

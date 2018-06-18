@@ -40,7 +40,7 @@ from cswd.tasks.stock_codes import flush_stock_codes
 from cswd.tasks.stock_issue import flush_stock_issue
 from cswd.tasks.stock_category import flush_stock_category
 from cswd.tasks.stock_shareholders import flush_shareholder
-from cswd.tasks.stock_gpgk import flush_gpgk
+# from cswd.tasks.stock_gpgk import flush_gpgk
 from cswd.tasks.stock_daily import flush_stockdaily
 from cswd.tasks.stock_dealdetail import flush_dealdetail
 from cswd.tasks.financial_reports import flush_reports
@@ -68,7 +68,7 @@ def main():
     flush_stock_issue()
     flush_trading_calendar()
     flush_stock_category()
-    flush_gpgk()
+    # flush_gpgk()
     flush_stockdaily(init=True)
     flush_dealdetail(init=True)
     flush_reports()

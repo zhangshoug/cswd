@@ -1,5 +1,9 @@
 """
 凤凰网
+
+凤凰网股票概况不再提供简称及特别处理信息。
+
+废弃
 """
 import pandas as pd
 from io import BytesIO
