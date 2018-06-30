@@ -191,15 +191,7 @@ def _common_fun(url, pages, skiprows=1, verbose=False):
         if verbose:
             logger.info('第{}页'.format(i))
         df = reader.read(x=page_url)
-        # # try:
-        # #     # df = sina_read_fun(page_url)
-        # #     df = reader.read(page_url)
-        # #     print(df)
-        # #     dfs.append(df)
-        # # except ValueError:
-        # #     break
-        # # except IndexError:
-        # #     break
+        dfs.append(df)
     return pd.concat(dfs, ignore_index=True)
 
 
