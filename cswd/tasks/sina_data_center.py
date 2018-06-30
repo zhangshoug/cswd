@@ -79,6 +79,7 @@ class DataCenter(object):
         if self.data is None or self.data.empty:
             # 一旦超出实际数量，自动跳出循环(当前最多500页)
             kwargs.update(pages=1000)
+            kwargs.update(verbose=True)
             to_add = fetch_func(**kwargs)
             logger.info('表{}新增数据{}行'.format(self.name, to_add.shape[0]))
         else:
@@ -89,7 +90,8 @@ class DataCenter(object):
             to_add = _get_added(new_df, self.data, self.keys)
             logger.info('表{}新增数据{}行'.format(self.name, to_add.shape[0]))
             # 新增+原数据
-            to_add = pd.concat([to_add, self.data])
+            objs = [to_add, self.data] if len(to_add) else [self.data]
+            to_add = pd.concat(objs, sort=False)
         if not to_add.empty:
             self._write(to_add)
 

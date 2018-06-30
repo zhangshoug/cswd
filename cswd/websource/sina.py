@@ -182,7 +182,6 @@ def _common_fun(url, pages, skiprows=1, verbose=False):
         page_url = url + 'p={}'.format(i)
         if verbose:
             logger.info('第{}页'.format(i))
-            # logger.info('{}'.format(page_url))
         try:
             df = read_fun(page_url)
             dfs.append(df)
