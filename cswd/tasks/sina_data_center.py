@@ -65,7 +65,7 @@ class DataCenter(object):
         """本地数据框"""
         return self.read()
 
-    def refresh(self, kwargs={}):
+    def refresh(self):
         """
         刷新数据
 
@@ -75,6 +75,7 @@ class DataCenter(object):
             2. 如有本地数据，则提取最新一期的网页数据；
             3. 提取的数据，与原数据合并，重新保存生成新的本地数据
         """
+        kwargs={}
         fetch_func = TABLE_MAPS[self.name][1]
         if self.data is None or self.data.empty:
             # 一旦超出实际数量，自动跳出循环(当前最多500页)
