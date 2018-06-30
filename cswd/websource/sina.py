@@ -15,6 +15,7 @@ import logbook
 
 from ..common.constants import QUOTE_COLS
 from ..common.utils import ensure_list
+from ..dataproxy.cache import DataProxy
 from .base import friendly_download, get_page_response
 from .exceptions import NoWebData, FrequentAccess
 
@@ -92,7 +93,7 @@ def fetch_quotes(stock_codes):
     url_fmt = 'http://hq.sinajs.cn/list={}'
     dfs = []
     for i in range(times):
-        p_codes = stock_codes[i*length:(i+1)*length]
+        p_codes = stock_codes[i * length:(i + 1) * length]
         url = url_fmt.format(','.join(map(_add_prefix, p_codes)))
         content = get_page_response(url).text
         dfs.append(_to_dataframe(content, p_codes))
@@ -111,8 +112,10 @@ def fetch_globalnews():
     # 标题
     titles = [p.string for p in soup.find_all("p", class_="bd_i_txt_c")]
     # 类别
-    categories = [re.sub(NEWS_PATTERN, '', p.string)
-                  for p in soup.find_all("p", class_="bd_i_tags")]
+    categories = [
+        re.sub(NEWS_PATTERN, '', p.string)
+        for p in soup.find_all("p", class_="bd_i_tags")
+    ]
     # 编码bd_i bd_i_og clearfix
     data_mid = ['{} {}'.format(str(today), t) for t in stamps]
     return stamps, titles, categories, data_mid
@@ -164,8 +167,8 @@ def fetch_cjmx(stock_code, date_):
     except HTTPError:
         raise FrequentAccess('频繁访问新浪网，系统暂停响应')
     else:
-        raise NoWebData(
-            '无法在新浪网获取成交明细数据。股票：{}，日期：{}'.format(code_str, date_str))
+        raise NoWebData('无法在新浪网获取成交明细数据。股票：{}，日期：{}'.format(
+            code_str, date_str))
 
 
 @friendly_download(10, 10, 1)
@@ -173,22 +176,30 @@ def _common_fun(url, pages, skiprows=1, verbose=False):
     """处理新浪数据中心网页数据通用函数"""
     dfs = []
 
-    def read_fun(x): return pd.read_html(
-        x, skiprows=skiprows,
-        na_values=['--'],
-        flavor='html5lib',
-        attrs={'class': 'list_table'})[0]
-    for i in range(1, pages+1):
+    def sina_read_fun(x):
+        return pd.read_html(
+            x,
+            skiprows=skiprows,
+            na_values=['--'],
+            flavor='html5lib',
+            attrs={'class': 'list_table'})[0]
+
+    reader = DataProxy(sina_read_fun, '00:00:00')
+
+    for i in range(1, pages + 1):
         page_url = url + 'p={}'.format(i)
         if verbose:
             logger.info('第{}页'.format(i))
-        try:
-            df = read_fun(page_url)
-            dfs.append(df)
-        except ValueError:
-            break
-        except IndexError:
-            break
+        df = reader.read(x=page_url)
+        # # try:
+        # #     # df = sina_read_fun(page_url)
+        # #     df = reader.read(page_url)
+        # #     print(df)
+        # #     dfs.append(df)
+        # # except ValueError:
+        # #     break
+        # # except IndexError:
+        # #     break
     return pd.concat(dfs, ignore_index=True)
 
 
@@ -210,8 +221,7 @@ def fetch_rating(pages=1, verbose=False):
     if verbose:
         logger.info('提取机构评级网页数据')
     # 名称中可能含有非法字符，重新定义列名称
-    cols = ['股票代码', '股票名称', '目标价', '最新评级', '评级机构',
-            '分析师', '行业', '评级日期']
+    cols = ['股票代码', '股票名称', '目标价', '最新评级', '评级机构', '分析师', '行业', '评级日期']
     url = DATA_BASE_URL + 'vIR_RatingNewest/index.phtml?'
     df = _common_fun(url, pages, verbose=verbose)
     df = df.iloc[:, :8]
@@ -243,8 +253,10 @@ def fetch_organization_care(pages=1, last=30, verbose=False):
     if verbose:
         logger.info('提取机构关注度网页数据')
     # 名称中可能含有非法字符，重新定义列名称
-    cols = ['股票代码', '股票名称', '关注度', '最新评级', '平均评级',
-            '买入数', '持有数', '中性数', '减持数', '卖出数', '行业']
+    cols = [
+        '股票代码', '股票名称', '关注度', '最新评级', '平均评级', '买入数', '持有数', '中性数', '减持数',
+        '卖出数', '行业'
+    ]
     url = DATA_BASE_URL + 'vIR_OrgCare/index.phtml?last={}&'.format(last)
     df = _common_fun(url, pages, verbose=verbose)
     df = df.iloc[:, :11]
@@ -284,8 +296,9 @@ def fetch_industry_care(pages=2, last=30, verbose=False):
     if verbose:
         logger.info('提取行业关注度网页数据')
     # 名称中可能含有非法字符，重新定义列名称
-    cols = ['行业名称', '关注度', '关注股票数', '买入评级数',
-            '持有评级数', '中性评级数', '减持评级数', '卖出评级数']
+    cols = [
+        '行业名称', '关注度', '关注股票数', '买入评级数', '持有评级数', '中性评级数', '减持评级数', '卖出评级数'
+    ]
     url = DATA_BASE_URL + 'vIR_IndustryCare/index.phtml?last={}&'.format(last)
     df = _common_fun(url, pages, verbose=verbose)
     df.columns = cols
@@ -339,8 +352,7 @@ def fetch_performance_prediction(pages=1, verbose=False):
     """
     if verbose:
         logger.info('提取业绩预告网页数据')
-    cols = ['股票代码', '股票名称', '类型', '公告日期', '报告期',
-            '摘要', '上年同期', '同比幅度']
+    cols = ['股票代码', '股票名称', '类型', '公告日期', '报告期', '摘要', '上年同期', '同比幅度']
     url = DATA_BASE_URL + 'vFinanceAnalyze/kind/performance/index.phtml?'
     df = _common_fun(url, pages, 0, verbose=verbose)
     df = df.iloc[:, :8]
