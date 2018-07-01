@@ -3,10 +3,10 @@ python setup.py install --record log
 cat log | xargs rm -rf
 """
 from setuptools import setup, find_packages
-
+import codecs
 
 def read(filename):
-    with open(filename, 'r') as f:
+    with codecs.open(filename, 'r') as f:
         return f.read()
 
 
